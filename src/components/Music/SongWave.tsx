@@ -33,7 +33,6 @@ export default function SongWave({
       progressColor: "#ef4444",
       cursorColor: "#ef4444",
       height,
-      responsive: true,
       normalize: true,
     });
 
