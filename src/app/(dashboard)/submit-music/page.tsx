@@ -1,130 +1,3 @@
-// "use client";
-
-// import React, { useEffect, useState } from "react";
-// import { supabase } from "@/utils/supabaseClient";
-// import SubmissionList from "@/components/Music/SubmissionList";
-
-// export default function SubmissionsPage() {
-//   const [songs, setSongs] = useState<any[]>([]);
-
-//   useEffect(() => {
-//     const loadSongs = async () => {
-//       const { data, error } = await supabase
-//         .from("songs")
-//         .select("*")
-//         .order("created_at", { ascending: false });
-
-//       if (!error && data) setSongs(data);
-//     };
-
-//     loadSongs();
-//   }, []);
-
-//   return (
-//     <div>
-//       <h1 className="text-2xl font-semibold mb-6">My Submissions</h1>
-
-//       <SubmissionList
-//         items={songs}
-//         onPlay={(song) => console.log("Play", song)}
-//       />
-//     </div>
-//   );
-// }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// "use client";
-
-// import React, { useEffect, useState } from "react";
-// import { supabase } from "@/utils/supabaseClient";
-// import UploadMusicForm from "@/components/Music/UploadMusicForm";
-// import SubmissionList from "@/components/Music/SubmissionList";
-// import SongWave from "@/components/Music/SongWave";
-
-// export default function SubmitMusicPage() {
-//   const [songs, setSongs] = useState<any[]>([]);
-//   const [sort, setSort] = useState<"new" | "old" | "title">("new");
-//   const [limit, setLimit] = useState(12);
-//   const [playing, setPlaying] = useState<any | null>(null);
-
-//   const load = async (lim = 12) => {
-//     let query = supabase.from("songs").select("*");
-//     if (sort === "new") query = query.order("created_at", { ascending: false });
-//     if (sort === "old") query = query.order("created_at", { ascending: true });
-//     if (sort === "title") query = query.order("title", { ascending: true });
-
-//     const { data } = await query.limit(lim);
-//     setSongs(data || []);
-//   };
-
-//   useEffect(() => {
-//     load(limit);
-//     // eslint-disable-next-line react-hooks/exhaustive-deps
-//   }, [sort, limit]);
-
-//   return (
-//     <div className="space-y-8">
-//       <UploadMusicForm onUploaded={() => load(limit)} />
-
-//       <div className="flex items-center justify-between">
-//         <h2 className="text-xl font-semibold">My submissions</h2>
-
-//         <div className="flex items-center gap-3">
-//           <select value={sort} onChange={(e) => setSort(e.target.value as any)} className="bg-[#111] p-2 rounded">
-//             <option value="new">Newest</option>
-//             <option value="old">Oldest</option>
-//             <option value="title">Title (A→Z)</option>
-//           </select>
-
-//           <button onClick={() => setLimit((s) => s + 12)} className="bg-[#222] px-3 py-1 rounded">
-//             Load more
-//           </button>
-//         </div>
-//       </div>
-
-//       <SubmissionList
-//         items={songs}
-//         onPlay={(song) => {
-//           setPlaying(song);
-//         }}
-//       />
-
-//       {playing?.audio_url && (
-//         <div className="mt-6">
-//           <h4 className="text-sm text-gray-300">Now previewing: {playing.title}</h4>
-//           <SongWave url={playing.audio_url} height={80} />
-//         </div>
-//       )}
-//     </div>
-//   );
-// }
-
-
-
-
-
-
-
-
-
-
-
-
-
 "use client";
 
 import { useState } from "react";
@@ -157,60 +30,86 @@ export default function SubmitMusicPage() {
   const [openStage, setOpenStage] = useState(false);
   const stages = ["Draft", "Demo", "Mixing", "Mastering", "Finished"];
 
+  const inputClass = "w-full p-4 bg-[#222] border border-[#333] rounded-xl outline-none focus:border-[#ff4b5c] transition-colors";
+
   const uploadMusic = async () => {
     if (!file || !artistName || !songTitle || !agree)
       return alert("Please fill required fields!");
 
+    // Check if user is logged in
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return alert("You must be logged in to upload music!");
+    }
+
     setLoading(true);
     setUploadProgress(10);
 
-    const ext = file.name.split(".").pop();
-    const filePath = `music_${Date.now()}.${ext}`;
+    try {
+      // 1. Upload File
+      const ext = file.name.split(".").pop();
+      const filePath = `music_${Date.now()}.${ext}`;
 
-    const { error: uploadErr } = await supabase.storage
-      .from("music-files")
-      .upload(filePath, file, {
-        upsert: false,
+      const { error: uploadErr } = await supabase.storage
+        .from("music-files")
+        .upload(filePath, file, {
+          upsert: false,
+        });
+
+      if (uploadErr) {
+        console.error("Upload Error:", uploadErr);
+        throw new Error(`Upload failed: ${uploadErr.message}`);
+      }
+
+      setUploadProgress(70);
+
+      const { data: urlData } = supabase.storage
+        .from("music-files")
+        .getPublicUrl(filePath);
+
+      // 2. Insert Database Record
+      const { error: dbError } = await supabase.from("songs").insert({
+        title: songTitle,
+        artist: artistName,
+        album: albumTitle || null,
+        audio_url: urlData.publicUrl,
+        song_url: urlData.publicUrl, // Added this to satisfy the constraint
+        cover_url: null,
+        release_date: releaseDate || null,
+        isrc: isrc || null,
+        production_stage: stage || null,
+        credit_label: creditLabel || null,
+        lyrics: lyrics || null,
+        instagram: insta || null,
+        soundcloud: soundCloud || null,
+        website: website || null,
+        twitter: twitter || null,
+        spotify: spotify || null,
+        facebook: facebook || null,
+        user_id: user.id,
       });
 
-    if (uploadErr) {
+      if (dbError) {
+        console.error("Database Error:", dbError);
+        throw new Error(`Database save failed: ${dbError.message}`);
+      }
+
+      setUploadProgress(100);
+      alert("Music uploaded successfully!");
+
+      // Reset form
+      setFile(null);
+      setArtistName("");
+      setSongTitle("");
+      setAlbumTitle("");
+      setAgree(false);
+
+    } catch (error: any) {
+      console.error(error);
+      alert(error.message || "Something went wrong!");
+    } finally {
       setLoading(false);
-      return alert("Upload failed!");
     }
-
-    setUploadProgress(70);
-
-    const { data: urlData } = supabase.storage
-      .from("music-files")
-      .getPublicUrl(filePath);
-
-    const userRes = await supabase.auth.getUser();
-    const userId = userRes?.data?.user?.id ?? null;
-
-    await supabase.from("songs").insert({
-      title: songTitle,
-      artist: artistName,
-      album: albumTitle || null,
-      audio_url: urlData.publicUrl,
-      cover_url: null,
-      release_date: releaseDate || null,
-      isrc: isrc || null,
-      production_stage: stage || null,
-      credit_label: creditLabel || null,
-      lyrics: lyrics || null,
-      instagram: insta || null,
-      soundcloud: soundCloud || null,
-      website: website || null,
-      twitter: twitter || null,
-      spotify: spotify || null,
-      facebook: facebook || null,
-      user_id: userId,
-    });
-
-    setUploadProgress(100);
-    setLoading(false);
-
-    alert("Music uploaded!");
   };
 
   return (
@@ -237,22 +136,28 @@ export default function SubmitMusicPage() {
             />
           </label>
 
-          {file && (
-            <button
-              onClick={() => setFile(null)}
-              className="text-red-400 border border-red-400 px-6 py-2 rounded-xl flex items-center gap-2"
-            >
-              <Trash2 size={18} /> Delete
-            </button>
+          {file ? (
+            <div className="flex flex-col gap-2">
+              <p className="font-medium">{file.name}</p>
+              <p className="text-sm text-gray-400">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+              <button
+                onClick={() => setFile(null)}
+                className="text-red-400 border border-red-400 px-4 py-1.5 rounded-lg flex items-center gap-2 text-sm w-fit hover:bg-red-500/10"
+              >
+                <Trash2 size={16} /> Remove
+              </button>
+            </div>
+          ) : (
+            <p className="text-gray-500 text-sm">No file selected</p>
           )}
         </div>
 
         {/* Progress bar */}
-        {file && (
+        {loading && (
           <div className="mb-6">
             <div className="h-2 w-full bg-[#333] rounded-xl overflow-hidden">
               <div
-                className="h-2 bg-[#ff4b5c] transition-all"
+                className="h-2 bg-[#ff4b5c] transition-all duration-300"
                 style={{ width: `${uploadProgress}%` }}
               />
             </div>
@@ -263,24 +168,24 @@ export default function SubmitMusicPage() {
         {/* 2-column input grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
 
-          <input className="input" placeholder="Artist Name" value={artistName} onChange={(e) => setArtistName(e.target.value)} />
+          <input className={inputClass} placeholder="Artist Name" value={artistName} onChange={(e) => setArtistName(e.target.value)} />
 
-          <input className="input" placeholder="Album title (optional)" value={albumTitle} onChange={(e) => setAlbumTitle(e.target.value)} />
+          <input className={inputClass} placeholder="Album title (optional)" value={albumTitle} onChange={(e) => setAlbumTitle(e.target.value)} />
 
-          <input className="input" placeholder="Artist song title" value={songTitle} onChange={(e) => setSongTitle(e.target.value)} />
+          <input className={inputClass} placeholder="Artist song title" value={songTitle} onChange={(e) => setSongTitle(e.target.value)} />
 
-          <input className="input" placeholder="ISRC (optional)" value={isrc} onChange={(e) => setIsrc(e.target.value)} />
+          <input className={inputClass} placeholder="ISRC (optional)" value={isrc} onChange={(e) => setIsrc(e.target.value)} />
 
-          <input className="input" placeholder="Release Date (YYYY-MM-DD)" value={releaseDate} onChange={(e) => setReleaseDate(e.target.value)} />
+          <input className={inputClass} placeholder="Release Date (YYYY-MM-DD)" value={releaseDate} onChange={(e) => setReleaseDate(e.target.value)} />
 
           {/* Stage dropdown */}
           <div className="relative">
-            <div onClick={() => setOpenStage(!openStage)} className="input flex justify-between cursor-pointer">
+            <div onClick={() => setOpenStage(!openStage)} className={`${inputClass} flex justify-between cursor-pointer`}>
               {stage || "Production stage"}
               <ChevronDown />
             </div>
             {openStage && (
-              <div className="absolute mt-1 bg-[#222] border border-[#333] rounded-xl w-full z-10">
+              <div className="absolute mt-1 bg-[#222] border border-[#333] rounded-xl w-full z-10 shadow-xl">
                 {stages.map((s) => (
                   <p
                     key={s}
@@ -288,7 +193,7 @@ export default function SubmitMusicPage() {
                       setStage(s);
                       setOpenStage(false);
                     }}
-                    className="px-4 py-3 hover:bg-[#333] cursor-pointer"
+                    className="px-4 py-3 hover:bg-[#333] cursor-pointer first:rounded-t-xl last:rounded-b-xl"
                   >
                     {s}
                   </p>
@@ -297,9 +202,9 @@ export default function SubmitMusicPage() {
             )}
           </div>
 
-          <input className="input" placeholder="Record label (optional)" value={creditLabel} onChange={(e) => setCreditLabel(e.target.value)} />
+          <input className={inputClass} placeholder="Record label (optional)" value={creditLabel} onChange={(e) => setCreditLabel(e.target.value)} />
 
-          <input className="input" placeholder="Lyrics (Optional)" value={lyrics} onChange={(e) => setLyrics(e.target.value)} />
+          <input className={inputClass} placeholder="Lyrics (Optional)" value={lyrics} onChange={(e) => setLyrics(e.target.value)} />
 
         </div>
 
@@ -307,12 +212,12 @@ export default function SubmitMusicPage() {
         <p className="text-gray-400 mb-2">Artist social (optional)</p>
 
         <div className="grid grid-cols-2 gap-6 mb-8">
-          <input className="input" placeholder="Instagram" value={insta} onChange={(e) => setInsta(e.target.value)} />
-          <input className="input" placeholder="Twitter" value={twitter} onChange={(e) => setTwitter(e.target.value)} />
-          <input className="input" placeholder="Soundcloud" value={soundCloud} onChange={(e) => setSoundCloud(e.target.value)} />
-          <input className="input" placeholder="Spotify" value={spotify} onChange={(e) => setSpotify(e.target.value)} />
-          <input className="input" placeholder="Website" value={website} onChange={(e) => setWebsite(e.target.value)} />
-          <input className="input" placeholder="Facebook" value={facebook} onChange={(e) => setFacebook(e.target.value)} />
+          <input className={inputClass} placeholder="Instagram" value={insta} onChange={(e) => setInsta(e.target.value)} />
+          <input className={inputClass} placeholder="Twitter" value={twitter} onChange={(e) => setTwitter(e.target.value)} />
+          <input className={inputClass} placeholder="Soundcloud" value={soundCloud} onChange={(e) => setSoundCloud(e.target.value)} />
+          <input className={inputClass} placeholder="Spotify" value={spotify} onChange={(e) => setSpotify(e.target.value)} />
+          <input className={inputClass} placeholder="Website" value={website} onChange={(e) => setWebsite(e.target.value)} />
+          <input className={inputClass} placeholder="Facebook" value={facebook} onChange={(e) => setFacebook(e.target.value)} />
         </div>
 
         {/* TERMS */}
@@ -327,7 +232,9 @@ export default function SubmitMusicPage() {
         <div className="w-full flex justify-end">
           <button
             onClick={uploadMusic}
-            className="px-8 py-3 bg-[#ff4b5c] hover:bg-[#ff6b7c] rounded-xl shadow-lg flex items-center gap-2 font-semibold"
+            disabled={loading}
+            className={`px-8 py-3 rounded-xl shadow-lg flex items-center gap-2 font-semibold transition-colors ${loading ? "bg-gray-600 cursor-not-allowed" : "bg-[#ff4b5c] hover:bg-[#ff6b7c]"
+              }`}
           >
             {loading ? <Loader className="animate-spin" size={18} /> : "Upload MP3"}
           </button>
@@ -337,8 +244,3 @@ export default function SubmitMusicPage() {
     </div>
   );
 }
-
-/* Tailwind shortcut */
-const input = `
-  w-full p-4 bg-[#222] border border-[#333] rounded-xl outline-none
-`;
