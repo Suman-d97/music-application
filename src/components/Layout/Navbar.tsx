@@ -36,7 +36,7 @@ export default function HeaderBanner() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    router.push("/signin");
+    router.push("/");
   };
 
   const userName =
