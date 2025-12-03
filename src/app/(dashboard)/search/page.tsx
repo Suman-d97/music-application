@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/utils/supabaseClient";
 import AlbumCard from "@/components/Music/AlbumCard";
@@ -10,6 +10,14 @@ import { useUser } from "@supabase/auth-helpers-react";
 import { useRouter } from "next/navigation";
 
 export default function SearchPage() {
+    return (
+        <Suspense fallback={<div className="text-white">Loading search...</div>}>
+            <SearchContent />
+        </Suspense>
+    );
+}
+
+function SearchContent() {
     const searchParams = useSearchParams();
     const query = searchParams.get("q") || "";
     const { play } = useMusic();
@@ -64,7 +72,7 @@ export default function SearchPage() {
                         {albums.length === 0 ? (
                             <p className="text-gray-400">No albums found.</p>
                         ) : (
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
                                 {albums.map((a) => (
                                     <AlbumCard
                                         key={a.id}

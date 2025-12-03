@@ -6,7 +6,7 @@ export const metadata = {
   title: "MusicHub",
   description: "MusicHub — manage music & art submissions",
    icons: {
-    icon: "https://i.postimg.cc/9Q6XZ6XZ/music.png",
+    icon: "/sidebar/music.png",
   },
 };
 

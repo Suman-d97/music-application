@@ -3,7 +3,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { MoreVertical } from "lucide-react";
+import { MoreVertical, Music } from "lucide-react";
+import Image from "next/image";
 
 interface SongCardProps {
   song: {
@@ -25,16 +26,21 @@ export default function SongCard({ song, onPlay, onDownload, onEdit, onDelete }:
   return (
     <div className="bg-[var(--card)] p-3 rounded-lg border border-[var(--border)] relative group">
       <div
-        className="h-40 bg-[var(--bg-secondary)] rounded-lg mb-3 flex items-center justify-center cursor-pointer overflow-hidden"
+        className="h-32 bg-[var(--bg-secondary)] rounded-lg mb-3 flex items-center justify-center cursor-pointer overflow-hidden relative"
         onClick={() => onPlay?.(song)}
       >
         {song.cover_url ? (
-          // use Next <Image> if you have next/image, otherwise img
-          <img className="w-full h-full object-cover rounded-lg" src={song.cover_url} alt={song.title} />
+          <Image
+            src={song.cover_url}
+            alt={song.title || "Song cover"}
+            fill
+            className="object-cover rounded-lg"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          />
         ) : (
-          <svg className="w-14 h-14 text-gray-500" viewBox="0 0 24 24" fill="none">
-            <path d="M9 17V5l12-2v12" stroke="currentColor" strokeWidth="1.5" />
-          </svg>
+          <div className="w-full h-full flex items-center justify-center bg-gray-800 text-gray-500">
+            <Music size={40} />
+          </div>
         )}
       </div>
 
