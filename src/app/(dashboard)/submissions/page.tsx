@@ -152,16 +152,16 @@ export default function SubmissionsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--bg)] text-[var(--text)] px-6 py-10 pb-32">
+    <div className="min-h-screen bg-[var(--bg)] text-[var(--text)] px-3 sm:px-4 md:px-6 py-6 md:py-10 pb-24 md:pb-32">
 
       {/* Title */}
-      <h2 className="text-xl font-semibold mb-4">My submissions</h2>
+      <h2 className="text-lg md:text-xl font-semibold mb-3 md:mb-4">My submissions</h2>
 
       {/* Tabs */}
-      <div className="flex gap-10 items-center border-b border-[var(--border)] pb-1 mb-6">
+      <div className="flex gap-6 md:gap-10 items-center border-b border-[var(--border)] pb-1 mb-4 md:mb-6">
         <button
           onClick={() => setTab("music")}
-          className={`pb-2 flex items-center gap-1 ${tab === "music" ? "text-red-400 border-b-2 border-red-400" : "text-[var(--text-secondary)]"
+          className={`pb-2 flex items-center gap-1 text-sm md:text-base ${tab === "music" ? "text-red-400 border-b-2 border-red-400" : "text-[var(--text-secondary)]"
             }`}
         >
           🎵 Music
@@ -169,7 +169,7 @@ export default function SubmissionsPage() {
 
         <button
           onClick={() => setTab("arts")}
-          className={`pb-2 flex items-center gap-1 ${tab === "arts" ? "text-red-400 border-b-2 border-red-400" : "text-[var(--text-secondary)]"
+          className={`pb-2 flex items-center gap-1 text-sm md:text-base ${tab === "arts" ? "text-red-400 border-b-2 border-red-400" : "text-[var(--text-secondary)]"
             }`}
         >
           🖼️ Arts
@@ -181,22 +181,22 @@ export default function SubmissionsPage() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col items-center mt-20"
+          className="flex flex-col items-center mt-12 md:mt-20"
         >
-          <div className="w-32 h-32 bg-[var(--card)] rounded-full flex items-center justify-center mb-6">
-            <span className="text-6xl">{tab === "music" ? "🎵" : "🖼️"}</span>
+          <div className="w-24 h-24 md:w-32 md:h-32 bg-[var(--card)] rounded-full flex items-center justify-center mb-4 md:mb-6">
+            <span className="text-5xl md:text-6xl">{tab === "music" ? "🎵" : "🖼️"}</span>
           </div>
 
-          <p className="mt-6 text-lg font-medium">
+          <p className="mt-4 md:mt-6 text-base md:text-lg font-medium">
             You have not submitted {tab === "music" ? "music" : "art"} yet.
           </p>
-          <p className="opacity-60 mb-4">Click to submit</p>
+          <p className="opacity-60 mb-3 md:mb-4 text-sm md:text-base">Click to submit</p>
 
           <button
             onClick={() =>
               window.location.href = tab === "music" ? "/submit-music" : "/submit-art"
             }
-            className="bg-red-500 px-5 py-2 rounded-xl hover:bg-red-600 transition"
+            className="bg-red-500 px-4 md:px-5 py-2 rounded-xl hover:bg-red-600 transition text-sm md:text-base"
           >
             Submit {tab === "music" ? "music" : "art"}
           </button>
@@ -205,7 +205,7 @@ export default function SubmissionsPage() {
 
       {/* GRID */}
       {!loading && items.length > 0 && (
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4 md:gap-6">
           {items.map((item, i) => (
             <motion.div
               key={item.id}

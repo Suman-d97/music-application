@@ -139,26 +139,26 @@ export default function HomePage() {
   return (
     <div
       style={{ color: theme === "dark" ? "#fff" : "#1f2937" }}
-      className="space-y-10"
+      className="space-y-6 md:space-y-10 px-3 sm:px-4 md:px-6"
     >
       {/* ⭐ STATS SECTION */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
         {/* Total Images */}
         <div
           style={{
             backgroundColor: theme === "dark" ? "#1b1b1b" : "#ffffff",
             borderColor: theme === "dark" ? "#2a2a2a" : "#e5e7eb",
           }}
-          className="p-6 rounded-2xl border"
+          className="p-4 sm:p-5 md:p-6 rounded-xl md:rounded-2xl border"
         >
-          <Palette className="text-pink-400 mb-3" size={28} />
+          <Palette className="text-pink-400 mb-2 md:mb-3" size={24} />
           <p
             style={{ color: theme === "dark" ? "#d1d5db" : "#6b7280" }}
-            className="text-sm"
+            className="text-xs sm:text-sm"
           >
             Total image
           </p>
-          <h2 className="text-2xl font-bold mt-1">{artCount}</h2>
+          <h2 className="text-xl md:text-2xl font-bold mt-1">{artCount}</h2>
         </div>
 
         {/* Total Music */}
@@ -167,16 +167,16 @@ export default function HomePage() {
             backgroundColor: theme === "dark" ? "#1b1b1b" : "#ffffff",
             borderColor: theme === "dark" ? "#2a2a2a" : "#e5e7eb",
           }}
-          className="p-6 rounded-2xl border"
+          className="p-4 sm:p-5 md:p-6 rounded-xl md:rounded-2xl border"
         >
-          <Music2 className="text-red-400 mb-3" size={28} />
+          <Music2 className="text-red-400 mb-2 md:mb-3" size={24} />
           <p
             style={{ color: theme === "dark" ? "#d1d5db" : "#6b7280" }}
-            className="text-sm"
+            className="text-xs sm:text-sm"
           >
             Total music
           </p>
-          <h2 className="text-2xl font-bold mt-1">{musicCount}</h2>
+          <h2 className="text-xl md:text-2xl font-bold mt-1">{musicCount}</h2>
         </div>
 
         {/* Active Users (Dummy or real later) */}
@@ -185,16 +185,16 @@ export default function HomePage() {
             backgroundColor: theme === "dark" ? "#1b1b1b" : "#ffffff",
             borderColor: theme === "dark" ? "#2a2a2a" : "#e5e7eb",
           }}
-          className="p-6 rounded-2xl border"
+          className="p-4 sm:p-5 md:p-6 rounded-xl md:rounded-2xl border"
         >
-          <Users className="text-green-400 mb-3" size={28} />
+          <Users className="text-green-400 mb-2 md:mb-3" size={24} />
           <p
             style={{ color: theme === "dark" ? "#d1d5db" : "#6b7280" }}
-            className="text-sm"
+            className="text-xs sm:text-sm"
           >
             Active users
           </p>
-          <h2 className="text-2xl font-bold mt-1">{activeUsers}</h2>
+          <h2 className="text-xl md:text-2xl font-bold mt-1">{activeUsers}</h2>
         </div>
 
         {/* Upload Count */}
@@ -203,16 +203,16 @@ export default function HomePage() {
             backgroundColor: theme === "dark" ? "#1b1b1b" : "#ffffff",
             borderColor: theme === "dark" ? "#2a2a2a" : "#e5e7eb",
           }}
-          className="p-6 rounded-2xl border"
+          className="p-4 sm:p-5 md:p-6 rounded-xl md:rounded-2xl border"
         >
-          <Upload className="text-yellow-400 mb-3" size={28} />
+          <Upload className="text-yellow-400 mb-2 md:mb-3" size={24} />
           <p
             style={{ color: theme === "dark" ? "#d1d5db" : "#6b7280" }}
-            className="text-sm"
+            className="text-xs sm:text-sm"
           >
             Your upload
           </p>
-          <h2 className="text-2xl font-bold mt-1">{userUploads}</h2>
+          <h2 className="text-xl md:text-2xl font-bold mt-1">{userUploads}</h2>
         </div>
       </div>
 
@@ -222,12 +222,12 @@ export default function HomePage() {
           backgroundColor: theme === "dark" ? "#1b1b1b" : "#ffffff",
           borderColor: theme === "dark" ? "#2a2a2a" : "#e5e7eb",
         }}
-        className="border p-8 rounded-2xl space-y-6"
+        className="border p-4 sm:p-6 md:p-8 rounded-xl md:rounded-2xl space-y-4 md:space-y-6"
       >
-        <h2 className="text-xl font-semibold">About our website</h2>
+        <h2 className="text-lg md:text-xl font-semibold">About our website</h2>
         <p
           style={{ color: theme === "dark" ? "#d1d5db" : "#6b7280" }}
-          className="leading-relaxed"
+          className="leading-relaxed text-sm md:text-base"
         >
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
           eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
@@ -240,17 +240,20 @@ export default function HomePage() {
         </p>
 
         {/* SOCIALS */}
-        <div className="flex items-center gap-6 pt-2">
+        <div className="flex items-center gap-4 md:gap-6 pt-2">
           <Instagram
-            size={26}
+            size={22}
+            className="md:w-[26px] md:h-[26px]"
             style={{ color: theme === "dark" ? "#d1d5db" : "#6b7280" }}
           />
           <Music2
-            size={26}
+            size={22}
+            className="md:w-[26px] md:h-[26px]"
             style={{ color: theme === "dark" ? "#d1d5db" : "#6b7280" }}
           />
           <BarChart3
-            size={26}
+            size={22}
+            className="md:w-[26px] md:h-[26px]"
             style={{ color: theme === "dark" ? "#d1d5db" : "#6b7280" }}
           />
         </div>
@@ -262,15 +265,15 @@ export default function HomePage() {
           backgroundColor: theme === "dark" ? "#1b1b1b" : "#ffffff",
           borderColor: theme === "dark" ? "#2a2a2a" : "#e5e7eb",
         }}
-        className="border p-8 rounded-2xl space-y-6"
+        className="border p-4 sm:p-6 md:p-8 rounded-xl md:rounded-2xl space-y-4 md:space-y-6"
       >
-        <h2 className="text-2xl font-semibold text-white">
+        <h2 className="text-xl md:text-2xl font-semibold text-white">
           Terms and conditions of website
         </h2>
 
         <p
           style={{ color: theme === "dark" ? "#d1d5db" : "#6b7280" }}
-          className="leading-relaxed"
+          className="leading-relaxed text-sm md:text-base"
         >
           PLEASE READ THIS AGREEMENT CAREFULLY. THIS AGREEMENT CONTAINS A
           MANDATORY INDIVIDUAL ARBITRATION AND JURY TRIAL WAIVER PROVISION THAT

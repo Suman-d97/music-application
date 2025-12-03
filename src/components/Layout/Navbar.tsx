@@ -49,7 +49,7 @@ export default function HeaderBanner() {
   return (
     <div className="w-full">
       {/* OUTER WRAPPER FOR SPACING */}
-      <div className="mt-8 mx-6 flex items-center justify-between">
+      <div className="mt-4 md:mt-8 mx-3 md:mx-6 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 md:gap-0">
 
         {/* LEFT PURPLE BANNER */}
         <div
@@ -58,10 +58,10 @@ export default function HeaderBanner() {
           }}
           className="
             relative 
-            w-[80%] 
-            h-[140px]
-            rounded-[32px] 
-            flex items-center pl-12
+            w-full md:w-[80%] 
+            h-[100px] sm:h-[120px] md:h-[140px]
+            rounded-2xl md:rounded-[32px] 
+            flex items-center px-4 sm:px-6 md:pl-12
             overflow-hidden
             shadow-xl
             transition-all duration-300
@@ -69,16 +69,16 @@ export default function HeaderBanner() {
         >
           {/* LEFT TEXT */}
           <div className="z-10">
-            <h1 className="text-[42px] font-extrabold text-white leading-tight">
+            <h1 className="text-2xl sm:text-3xl md:text-[42px] font-extrabold text-white leading-tight">
               Hello, {userName}!
             </h1>
-            <p className="text-white/90 text-[18px] mt-1">
+            <p className="text-white/90 text-sm sm:text-base md:text-[18px] mt-0.5 md:mt-1">
               Welcome back to Music Hub 🎶
             </p>
           </div>
 
           {/* RIGHT ILLUSTRATION - Decorative Elements */}
-          <div className="absolute right-10 top-1/2 -translate-y-1/2">
+          <div className="hidden lg:block absolute right-10 top-1/2 -translate-y-1/2">
             <div className="relative w-64 h-32">
               {/* Decorative dots */}
               <div className="absolute top-4 left-8 w-3 h-3 bg-white/30 rounded-full"></div>
@@ -100,7 +100,7 @@ export default function HeaderBanner() {
         </div>
 
         {/* RIGHT PROFILE SECTION (ICON + AVATAR + NAME) */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 md:gap-4 justify-end md:justify-start">
           {/* SETTINGS/THEME ICON */}
           <button
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
@@ -108,13 +108,13 @@ export default function HeaderBanner() {
               backgroundColor: theme === "dark" ? "#1F1F1F" : "#e8e8ed",
               borderColor: theme === "dark" ? "#333" : "#d2d2d7"
             }}
-            className="w-[48px] h-[48px] rounded-lg border flex items-center justify-center hover:opacity-80 transition-all duration-300 cursor-pointer group "
+            className="w-10 h-10 md:w-[48px] md:h-[48px] rounded-lg border flex items-center justify-center hover:opacity-80 transition-all duration-300 cursor-pointer group"
             aria-label="Toggle theme"
           >
             {theme === "dark" ? (
-              <Sun size={22} className="text-yellow-400 group-hover:rotate-180 transition-transform duration-500" />
+              <Sun size={18} className="md:w-[22px] md:h-[22px] text-yellow-400 group-hover:rotate-180 transition-transform duration-500" />
             ) : (
-              <Moon size={22} className="text-blue-500 group-hover:rotate-180 transition-transform duration-500" />
+              <Moon size={18} className="md:w-[22px] md:h-[22px] text-blue-500 group-hover:rotate-180 transition-transform duration-500" />
             )}
           </button>
 
@@ -125,13 +125,13 @@ export default function HeaderBanner() {
               style={{
                 backgroundColor: theme === "dark" ? "transparent" : "transparent"
               }}
-              className="flex items-center gap-3 hover:opacity-80 p-2 rounded-xl transition-all duration-300 cursor-pointer"
+              className="flex items-center gap-2 md:gap-3 hover:opacity-80 p-1 md:p-2 rounded-xl transition-all duration-300 cursor-pointer"
             >
               <div
                 style={{
                   borderColor: theme === "dark" ? "#333" : "#d2d2d7"
                 }}
-                className="w-[48px] h-[48px] rounded-full overflow-hidden bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center border-2"
+                className="w-10 h-10 md:w-[48px] md:h-[48px] rounded-full overflow-hidden bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center border-2"
               >
                 {avatarUrl ? (
                   <img
@@ -140,13 +140,13 @@ export default function HeaderBanner() {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <User size={24} className="text-white" />
+                  <User size={20} className="md:w-6 md:h-6 text-white" />
                 )}
               </div>
 
               <span
                 style={{ color: theme === "dark" ? "#ffffff" : "#1d1d1f" }}
-                className="text-[16px] font-medium hidden md:block"
+                className="text-sm md:text-[16px] font-medium hidden sm:block"
               >
                 {userName}
               </span>

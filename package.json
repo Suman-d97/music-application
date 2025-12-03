@@ -20,6 +20,7 @@
     "clsx": "^2.1.1",
     "framer-motion": "^12.23.24",
     "howler": "^2.2.4",
+    "lottie-react": "^2.4.1",
     "lucide-react": "^0.554.0",
     "motion": "^12.23.25",
     "next": "16.0.3",

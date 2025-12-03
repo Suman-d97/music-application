@@ -11,6 +11,7 @@ import { useDispatch } from "react-redux";
 import { setUser } from "@/store/userSlice";
 import { motion } from "framer-motion";
 import VerifyEmailDialog from "./VerifyEmailDialog";
+import AuthLoader from "./AuthLoader";
 
 const SignUpSchema = z
   .object({
@@ -120,6 +121,8 @@ export default function SignUpForm() {
 
   return (
     <>
+      {isSubmitting && <AuthLoader />}
+      
       <motion.form
         onSubmit={handleSubmit(onSubmit)}
         className="w-full max-w-md mx-auto px-4"

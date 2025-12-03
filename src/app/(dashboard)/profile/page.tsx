@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/utils/supabaseClient";
 import { Camera, Eye, EyeOff, Trash2 } from "lucide-react";
+import LottieLoader from "@/components/Common/LottieLoader";
 
 export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
@@ -183,15 +184,21 @@ export default function ProfilePage() {
   // --------------------------------------------------
   // UI
   // --------------------------------------------------
-  if (loading) return <div className="p-6 text-white">Loading...</div>;
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <LottieLoader size={300} message="Loading profile..." />
+      </div>
+    );
+  }
 
   return (
-    <div className="p-6 max-w-4xl mx-auto text-white">
+    <div className="p-3 sm:p-4 md:p-6 max-w-4xl mx-auto text-white">
 
       {/* -------------------- YOUR INFORMATION -------------------- */}
-      <h3 className="text-lg font-semibold mb-4">Your information</h3>
+      <h3 className="text-base md:text-lg font-semibold mb-3 md:mb-4">Your information</h3>
 
-      <div className="flex items-start gap-6">
+      <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6">
         <div>
           <div className="w-20 h-20 rounded-[12px] overflow-hidden bg-[#2b2b2b] border border-[#3a3a3a]">
             <img
@@ -203,8 +210,8 @@ export default function ProfilePage() {
         </div>
 
         {/* Upload + Delete */}
-        <div className="flex items-center gap-3 mt-1">
-          <label className="inline-flex items-center gap-2 px-5 py-3 rounded-[12px] bg-[#6b55ff] text-white cursor-pointer">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 mt-1 w-full sm:w-auto">
+          <label className="inline-flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 rounded-[12px] bg-[#6b55ff] text-white cursor-pointer text-sm">
             <Camera size={16} />
             Upload picture
             <input hidden type="file" onChange={handleAvatarUpload} />
@@ -212,7 +219,7 @@ export default function ProfilePage() {
 
           <button
             onClick={handleDeleteAvatar}
-            className="inline-flex items-center gap-2 px-5 py-3 rounded-[12px] border border-red-500 text-red-400 cursor-pointer"
+            className="inline-flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 rounded-[12px] border border-red-500 text-red-400 cursor-pointer text-sm"
           >
             <Trash2 size={16} />
             Delete picture
@@ -229,17 +236,17 @@ export default function ProfilePage() {
           className="w-full bg-[#2b2b2b] rounded-[10px] px-4 py-3 border border-[#3a3a3a]"
         />
 
-        <div className="flex gap-4">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
           <input
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
-            className="flex-1 bg-[#2b2b2b] rounded-[10px] px-4 py-3 border border-[#3a3a3a]"
+            className="flex-1 bg-[#2b2b2b] rounded-[10px] px-4 py-3 border border-[#3a3a3a] text-sm md:text-base"
           />
 
           <button
             onClick={handleSaveProfile}
-            className="px-6 py-3 rounded-[10px] bg-gray-600 cursor-pointer"
+            className="px-6 py-3 rounded-[10px] bg-gray-600 cursor-pointer text-sm md:text-base whitespace-nowrap"
           >
             Update
           </button>
@@ -325,29 +332,29 @@ export default function ProfilePage() {
       <div className="mt-10">
         <h4 className="text-lg font-semibold mb-3">About you</h4>
 
-        <div className="grid grid-cols-2 gap-4">
-          <input value={city} onChange={(e) => setCity(e.target.value)} placeholder="City" className="bg-[#2b2b2b] rounded-[10px] px-4 py-3 border border-[#3a3a3a]" />
-          <input value={stateProv} onChange={(e) => setStateProv(e.target.value)} placeholder="State / Province" className="bg-[#2b2b2b] rounded-[10px] px-4 py-3 border border-[#3a3a3a]" />
-          <input value={country} onChange={(e) => setCountry(e.target.value)} placeholder="Country" className="bg-[#2b2b2b] rounded-[10px] px-4 py-3 border border-[#3a3a3a]" />
-          <input value={company} onChange={(e) => setCompany(e.target.value)} placeholder="Company" className="bg-[#2b2b2b] rounded-[10px] px-4 py-3 border border-[#3a3a3a]" />
-          <input value={jobTitle} onChange={(e) => setJobTitle(e.target.value)} placeholder="Job Title" className="bg-[#2b2b2b] rounded-[10px] px-4 py-3 border border-[#3a3a3a]" />
-          <input value={website} onChange={(e) => setWebsite(e.target.value)} placeholder="Website" className="bg-[#2b2b2b] rounded-[10px] px-4 py-3 border border-[#3a3a3a]" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+          <input value={city} onChange={(e) => setCity(e.target.value)} placeholder="City" className="bg-[#2b2b2b] rounded-[10px] px-4 py-3 border border-[#3a3a3a] text-sm md:text-base" />
+          <input value={stateProv} onChange={(e) => setStateProv(e.target.value)} placeholder="State / Province" className="bg-[#2b2b2b] rounded-[10px] px-4 py-3 border border-[#3a3a3a] text-sm md:text-base" />
+          <input value={country} onChange={(e) => setCountry(e.target.value)} placeholder="Country" className="bg-[#2b2b2b] rounded-[10px] px-4 py-3 border border-[#3a3a3a] text-sm md:text-base" />
+          <input value={company} onChange={(e) => setCompany(e.target.value)} placeholder="Company" className="bg-[#2b2b2b] rounded-[10px] px-4 py-3 border border-[#3a3a3a] text-sm md:text-base" />
+          <input value={jobTitle} onChange={(e) => setJobTitle(e.target.value)} placeholder="Job Title" className="bg-[#2b2b2b] rounded-[10px] px-4 py-3 border border-[#3a3a3a] text-sm md:text-base" />
+          <input value={website} onChange={(e) => setWebsite(e.target.value)} placeholder="Website" className="bg-[#2b2b2b] rounded-[10px] px-4 py-3 border border-[#3a3a3a] text-sm md:text-base" />
         </div>
 
-        <div className="flex justify-between mt-6">
+        <div className="flex flex-col sm:flex-row justify-between gap-3 sm:gap-0 mt-6">
           <button
             onClick={async () => {
               await supabase.auth.signOut();
               window.location.href = "/signin";
             }}
-            className="px-6 py-3 rounded-[10px] bg-red-600 cursor-pointer"
+            className="px-6 py-3 rounded-[10px] bg-red-600 cursor-pointer text-sm md:text-base"
           >
             Sign out
           </button>
 
           <button
             onClick={handleSaveProfile}
-            className="px-6 py-3 rounded-[10px] bg-gray-600 cursor-pointer"
+            className="px-6 py-3 rounded-[10px] bg-gray-600 cursor-pointer text-sm md:text-base"
           >
             Update
           </button>

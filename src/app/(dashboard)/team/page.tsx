@@ -32,41 +32,6 @@
 //     {
 //       id: 4,
 //       name: "Sarah Williams",
-//       role: "Marketing Manager",
-//       image: "/team/Rectangle 302.png"
-//     }
-//   ];
-
-//   return (
-//     <div
-//       style={{ color: theme === "dark" ? "#fff" : "#1f2937" }}
-//       className="px-6 py-10"
-//     >
-//       {/* HEADING */}
-//       <h1 className="text-4xl font-bold mb-12 text-center">Team</h1>
-
-//       {/* TEAM PHOTOS GRID */}
-//       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
-//         {teamMembers.map((member) => (
-//           <div key={member.id} className="relative w-full h-64">
-//             <Image
-//               src={member.image}
-//               alt={member.name}
-//               fill
-//               className="object-contain"
-//             />
-//           </div>
-//         ))}
-//       </div>
-//     </div>
-//   );
-// }
-
-
-
-
-
-
 
 
 
@@ -107,14 +72,14 @@ export default function TeamPage() {
 
   return (
     <div
-      className="px-6 py-10"
+      className="px-3 sm:px-4 md:px-6 py-6 md:py-10"
       style={{ color: theme === "dark" ? "#fff" : "#1f2937" }}
     >
       {/* PAGE TITLE */}
-      <h2 className="text-3xl font-bold mb-10">Our team</h2>
+      <h2 className="text-2xl md:text-3xl font-bold mb-6 md:mb-10">Our team</h2>
 
       {/* TEAM CARDS */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 max-w-6xl">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-10 max-w-6xl">
         {teamMembers.map((member) => (
           <div
             key={member.id}
