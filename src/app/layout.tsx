@@ -1,4 +1,7 @@
 import "@/styles/globals.css";
+import "yet-another-react-lightbox/styles.css";
+import "yet-another-react-lightbox/plugins/captions.css";
+import "yet-another-react-lightbox/plugins/thumbnails.css";
 import Providers from "./providers";
 import MusicPlayer from "@/components/Music/MusicPlayer";
 

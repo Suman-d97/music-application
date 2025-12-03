@@ -7,6 +7,10 @@ import SongCard from "@/components/Music/SongCard";
 import ArtCard from "@/components/Art/ArtCard";
 import Lightbox from "yet-another-react-lightbox";
 import Zoom from "yet-another-react-lightbox/plugins/zoom";
+import Captions from "yet-another-react-lightbox/plugins/captions";
+import Thumbnails from "yet-another-react-lightbox/plugins/thumbnails";
+import Download from "yet-another-react-lightbox/plugins/download";
+import Fullscreen from "yet-another-react-lightbox/plugins/fullscreen";
 import { useMusic } from "@/store/useMusic";
 
 export default function SubmissionsPage() {
@@ -16,7 +20,9 @@ export default function SubmissionsPage() {
   const [loading, setLoading] = useState(true);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
-  const [lightboxImages, setLightboxImages] = useState<string[]>([]);
+  
+  // Store full slide objects instead of just strings
+  const [slides, setSlides] = useState<any[]>([]);
 
   // Global Music Player
   const { play } = useMusic();
@@ -44,6 +50,17 @@ export default function SubmissionsPage() {
     setMusic(musicData || []);
     setArts(artsData || []);
 
+    // Prepare slides for lightbox
+    if (artsData) {
+      const formattedSlides = artsData.map((art) => ({
+        src: art.image_url,
+        title: art.title || "Untitled Artwork",
+        description: art.artist ? `by ${art.artist}` : undefined,
+        downloadUrl: art.image_url, // For download plugin
+      }));
+      setSlides(formattedSlides);
+    }
+
     setLoading(false);
   };
 
@@ -51,7 +68,6 @@ export default function SubmissionsPage() {
 
   // ⭐ Lightbox
   const openLightbox = (index: number) => {
-    setLightboxImages(arts.map((a) => a.image_url));
     setLightboxIndex(index);
     setLightboxOpen(true);
   };
@@ -239,9 +255,14 @@ export default function SubmissionsPage() {
       <Lightbox
         open={lightboxOpen}
         close={() => setLightboxOpen(false)}
-        slides={lightboxImages.map((src) => ({ src }))}
+        slides={slides}
         index={lightboxIndex}
-        plugins={[Zoom]}
+        plugins={[Zoom, Captions, Thumbnails, Download, Fullscreen]}
+        styles={{
+          container: { backgroundColor: "rgba(0, 0, 0, 0.95)" },
+          captionsTitle: { fontSize: "20px", fontWeight: "bold" },
+          captionsDescription: { fontSize: "16px", color: "#ccc" },
+        }}
       />
     </div>
   );
