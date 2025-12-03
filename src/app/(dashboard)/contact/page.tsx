@@ -3,8 +3,10 @@
 import { useState } from "react";
 import { supabase } from "@/utils/supabaseClient";
 import { Mail, Loader } from "lucide-react";
+import { useThemeStore } from "@/store/themeStore";
 
 export default function ContactPage() {
+  const { theme } = useThemeStore();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
@@ -30,52 +32,61 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="text-white space-y-10">
-      {/* TOP HERO BANNER */}
-      {/* <div className="w-full bg-gradient-to-r from-[#7c4dff] to-[#6a63ff] p-8 rounded-2xl flex items-center justify-between">
-        <div>
-          <h1 className="text-4xl font-bold">Hello, Jack!</h1>
-          <p className="text-gray-200 text-lg mt-2">Welcome back to Myfile</p>
-        </div>
-
-        <img
-          src="/banner.png"
-          alt="banner"
-          className="w-64 h-auto object-contain"
-        />
-      </div> */}
+    <div
+      style={{ color: theme === "dark" ? "#fff" : "#1f2937" }}
+      className="space-y-10"
+    >
 
       {/* CONTACT SECTION */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-        
+
         {/* LEFT SIDE TEXT */}
         <div className="space-y-6">
           <h2 className="text-3xl font-bold">Contact us</h2>
-          <p className="text-gray-400 w-3/4">
+          <p
+            style={{ color: theme === "dark" ? "#9ca3af" : "#6b7280" }}
+            className="w-3/4"
+          >
             We are very happy to contact with you. You can contact us in the following ways:
           </p>
 
           <div>
-            <p className="text-gray-300 font-semibold">Address</p>
-            <p className="text-gray-400">
+            <p
+              style={{ color: theme === "dark" ? "#d1d5db" : "#374151" }}
+              className="font-semibold"
+            >
+              Address
+            </p>
+            <p style={{ color: theme === "dark" ? "#9ca3af" : "#6b7280" }}>
               Lorem ipsum dolor sit amet, consectetur adipiscing Lorem ipsum dolor sit amet.
             </p>
           </div>
 
           <div>
-            <p className="text-gray-300 font-semibold">Phone Number</p>
-            <p className="text-gray-400">+98 903 028 6976</p>
+            <p
+              style={{ color: theme === "dark" ? "#d1d5db" : "#374151" }}
+              className="font-semibold"
+            >
+              Phone Number
+            </p>
+            <p style={{ color: theme === "dark" ? "#9ca3af" : "#6b7280" }}>+98 7044123825</p>
           </div>
 
           <div>
-            <p className="text-gray-300 font-semibold">Email</p>
-            <p className="text-gray-400">Fatemeh96Aryan768@gmail.com</p>
+            <p
+              style={{ color: theme === "dark" ? "#d1d5db" : "#374151" }}
+              className="font-semibold"
+            >
+              Email
+            </p>
+            <p style={{ color: theme === "dark" ? "#9ca3af" : "#6b7280" }}>user@gmail.com</p>
           </div>
         </div>
 
         {/* RIGHT SIDE MAP */}
         <iframe
-          className="rounded-xl w-full h-72 border border-[#2a2a2a]"
+          style={{ borderColor: theme === "dark" ? "#2a2a2a" : "#d1d5db" }}
+          className="rounded-xl w-full h-72 border"
           src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d12090.78372996071!2d-73.985664!3d40.748817!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0xffd658ba25481e50!2sEmpire%20State%20Building!5e0!3m2!1sen!2sus!4v1683501675349!5m2!1sen!2sus"
           loading="lazy"
         ></iframe>
@@ -83,23 +94,38 @@ export default function ContactPage() {
 
       {/* FORM SECTION */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        
+
         <input
-          className="w-full p-4 rounded-xl bg-[#1f1f1f] border border-[#333] outline-none text-white"
+          style={{
+            backgroundColor: theme === "dark" ? "#1f1f1f" : "#f3f4f6",
+            borderColor: theme === "dark" ? "#333" : "#d1d5db",
+            color: theme === "dark" ? "#fff" : "#1f2937"
+          }}
+          className="w-full p-4 rounded-xl border outline-none"
           placeholder="Full Name"
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
 
         <input
-          className="w-full p-4 rounded-xl bg-[#1f1f1f] border border-[#333] outline-none text-white"
+          style={{
+            backgroundColor: theme === "dark" ? "#1f1f1f" : "#f3f4f6",
+            borderColor: theme === "dark" ? "#333" : "#d1d5db",
+            color: theme === "dark" ? "#fff" : "#1f2937"
+          }}
+          className="w-full p-4 rounded-xl border outline-none"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
 
         <textarea
-          className="w-full p-4 rounded-xl bg-[#1f1f1f] border border-[#333] outline-none text-white lg:col-span-2"
+          style={{
+            backgroundColor: theme === "dark" ? "#1f1f1f" : "#f3f4f6",
+            borderColor: theme === "dark" ? "#333" : "#d1d5db",
+            color: theme === "dark" ? "#fff" : "#1f2937"
+          }}
+          className="w-full p-4 rounded-xl border outline-none lg:col-span-2"
           rows={5}
           placeholder="Message text"
           value={message}

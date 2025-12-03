@@ -4,6 +4,7 @@
 import Footer from "@/components/Layout/Footer";
 import Navbar from "@/components/Layout/Navbar";
 import Sidebar from "@/components/Layout/Sidebar";
+import MusicPlayer from "@/components/Music/MusicPlayer";
 import { useThemeStore } from "@/store/themeStore";
 import { useEffect } from "react";
 
@@ -24,6 +25,9 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
         <main className="flex-1 p-8">{children}</main>
         <Footer />
       </div>
+
+      {/* Music Player - Fixed at bottom */}
+      {/* <MusicPlayer /> */}
     </div>
   );
 }

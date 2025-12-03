@@ -18,7 +18,7 @@ export default function ArtCard({
   onOpen?: (url?: string) => void;
 }) {
   return (
-    <div className="bg-[#1e1e1e] p-3 rounded-xl border border-[#2a2a2a] overflow-hidden">
+    <div className="bg-[var(--card)] p-3 rounded-xl border border-[var(--border)] overflow-hidden">
       <div
         className="h-40 w-full rounded-lg overflow-hidden cursor-pointer"
         onClick={() => onOpen?.(item.image_url)}
@@ -27,8 +27,8 @@ export default function ArtCard({
       </div>
 
       <div className="mt-3">
-        <div className="text-white font-medium">{item.title || "Artwork"}</div>
-        <div className="text-gray-400 text-sm">{item.artist || "Unknown"}</div>
+        <div className="text-[var(--text)] font-medium">{item.title || "Artwork"}</div>
+        <div className="text-[var(--text-secondary)] text-sm">{item.artist || "Unknown"}</div>
       </div>
     </div>
   );

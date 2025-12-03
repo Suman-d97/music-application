@@ -6,6 +6,7 @@ import { store } from "@/store";
 import { SessionContextProvider } from "@supabase/auth-helpers-react";
 import { createBrowserClient } from "@supabase/ssr";
 import { useState } from "react";
+import { ThemeProvider } from "@/contexts/ThemeProvider";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   // Create Supabase client once
@@ -18,7 +19,11 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <SessionContextProvider supabaseClient={supabase}>
-      <Provider store={store}>{children}</Provider>
+      <Provider store={store}>
+        <ThemeProvider>
+          {children}
+        </ThemeProvider>
+      </Provider>
     </SessionContextProvider>
   );
 }

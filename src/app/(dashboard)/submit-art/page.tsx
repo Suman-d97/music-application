@@ -5,8 +5,10 @@
 import { useState } from "react";
 import { supabase } from "@/utils/supabaseClient";
 import { Loader, UploadCloud, ChevronDown, X, Image as ImageIcon } from "lucide-react";
+import { useThemeStore } from "@/store/themeStore";
 
 export default function SubmitArtPage() {
+  const { theme } = useThemeStore();
   const [artistName, setArtistName] = useState("");
   const [artType, setArtType] = useState("");
   const [creditUrl, setCreditUrl] = useState("");
@@ -91,13 +93,25 @@ export default function SubmitArtPage() {
   };
 
   return (
-    <div className="w-full min-h-screen px-6 py-10 text-white">
+    <div
+      style={{ color: theme === "dark" ? "#fff" : "#1f2937" }}
+      className="w-full min-h-screen px-6 py-10"
+    >
 
       {/* === Submit Art Section === */}
-      <div className="bg-[#1b1b1b] rounded-2xl border border-[#2d2d2d] p-10 mx-auto max-w-4xl">
+      <div
+        style={{
+          backgroundColor: theme === "dark" ? "#1b1b1b" : "#ffffff",
+          borderColor: theme === "dark" ? "#2d2d2d" : "#e5e7eb"
+        }}
+        className="rounded-2xl border p-10 mx-auto max-w-4xl"
+      >
 
         <h1 className="text-2xl font-semibold mb-2">Submit art</h1>
-        <p className="text-gray-400 mb-8">
+        <p
+          style={{ color: theme === "dark" ? "#9ca3af" : "#6b7280" }}
+          className="mb-8"
+        >
           To upload image click on box or drop file here!
         </p>
 
@@ -157,21 +171,37 @@ export default function SubmitArtPage() {
           placeholder="Artist Name"
           value={artistName}
           onChange={(e) => setArtistName(e.target.value)}
-          className="w-full mb-4 p-4 bg-[#222] border border-[#333] rounded-xl outline-none"
+          style={{
+            backgroundColor: theme === "dark" ? "#222" : "#f3f4f6",
+            borderColor: theme === "dark" ? "#333" : "#d1d5db",
+            color: theme === "dark" ? "#fff" : "#1f2937"
+          }}
+          className="w-full mb-4 p-4 border rounded-xl outline-none"
         />
 
         {/* Art Type Dropdown */}
         <div className="relative mb-4">
           <div
             onClick={() => setOpenDrop(!openDrop)}
-            className="w-full p-4 bg-[#222] border border-[#333] rounded-xl flex justify-between cursor-pointer"
+            style={{
+              backgroundColor: theme === "dark" ? "#222" : "#f3f4f6",
+              borderColor: theme === "dark" ? "#333" : "#d1d5db",
+              color: theme === "dark" ? "#d1d5db" : "#374151"
+            }}
+            className="w-full p-4 border rounded-xl flex justify-between cursor-pointer"
           >
-            <span className="text-gray-300">{artType || "Art Type"}</span>
+            <span>{artType || "Art Type"}</span>
             <ChevronDown />
           </div>
 
           {openDrop && (
-            <div className="absolute top-full left-0 w-full bg-[#222] border border-[#333] rounded-xl mt-2 z-10">
+            <div
+              style={{
+                backgroundColor: theme === "dark" ? "#222" : "#ffffff",
+                borderColor: theme === "dark" ? "#333" : "#d1d5db"
+              }}
+              className="absolute top-full left-0 w-full border rounded-xl mt-2 z-10"
+            >
               {artTypes.map((type) => (
                 <div
                   key={type}
@@ -179,7 +209,7 @@ export default function SubmitArtPage() {
                     setArtType(type);
                     setOpenDrop(false);
                   }}
-                  className="px-4 py-3 hover:bg-[#333] cursor-pointer"
+                  className="px-4 py-3 hover:bg-opacity-20 hover:bg-gray-500 cursor-pointer"
                 >
                   {type}
                 </div>
@@ -194,7 +224,12 @@ export default function SubmitArtPage() {
           placeholder="Credit URL (optional)"
           value={creditUrl}
           onChange={(e) => setCreditUrl(e.target.value)}
-          className="w-full mb-8 p-4 bg-[#222] border border-[#333] rounded-xl outline-none"
+          style={{
+            backgroundColor: theme === "dark" ? "#222" : "#f3f4f6",
+            borderColor: theme === "dark" ? "#333" : "#d1d5db",
+            color: theme === "dark" ? "#fff" : "#1f2937"
+          }}
+          className="w-full mb-8 p-4 border rounded-xl outline-none"
         />
 
         {/* Social inputs — Optional */}
@@ -225,8 +260,8 @@ export default function SubmitArtPage() {
             onClick={uploadArt}
             disabled={loading || !file}
             className={`px-8 py-3 rounded-xl shadow-lg flex items-center gap-2 font-semibold transition-colors ${loading || !file
-                ? 'bg-gray-600 cursor-not-allowed'
-                : 'bg-[#ff475a] hover:bg-[#ff5f74]'
+              ? 'bg-gray-600 cursor-not-allowed'
+              : 'bg-[#ff475a] hover:bg-[#ff5f74]'
               }`}
           >
             {loading ? <Loader className="animate-spin" size={20} /> : "Upload art"}

@@ -2,22 +2,55 @@
 
 import { create } from "zustand";
 
-interface MusicState {
-  url: string | null;
-  title: string | null;
-  isPlaying: boolean;
-  play: (url: string, title: string) => void;
+interface Song {
+  url: string;
+  title: string;
+  artist?: string;
+  cover_url?: string;
 }
 
-export const useMusic = create<MusicState>((set) => ({
-  url: null,
-  title: null,
+interface MusicState {
+  playlist: Song[];
+  currentIndex: number;
+  isPlaying: boolean;
+
+  // Actions
+  play: (playlist: Song[], index?: number) => void;
+  toggle: () => void;
+  next: () => void;
+  prev: () => void;
+  setPlaying: (playing: boolean) => void;
+}
+
+export const useMusic = create<MusicState>((set, get) => ({
+  playlist: [],
+  currentIndex: 0,
   isPlaying: false,
 
-  play: (url: string, title: string) =>
+  play: (playlist: Song[], index = 0) =>
     set({
-      url,
-      title,
+      playlist,
+      currentIndex: index,
       isPlaying: true,
+    }),
+
+  toggle: () => set((state) => ({ isPlaying: !state.isPlaying })),
+
+  setPlaying: (playing: boolean) => set({ isPlaying: playing }),
+
+  next: () =>
+    set((state) => {
+      if (state.currentIndex < state.playlist.length - 1) {
+        return { currentIndex: state.currentIndex + 1, isPlaying: true };
+      }
+      return {};
+    }),
+
+  prev: () =>
+    set((state) => {
+      if (state.currentIndex > 0) {
+        return { currentIndex: state.currentIndex - 1, isPlaying: true };
+      }
+      return {};
     }),
 }));

@@ -1,10 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { supabase } from "@/utils/supabaseClient";
 import { UploadCloud, Trash2, ChevronDown, Loader } from "lucide-react";
+import { useThemeStore } from "@/store/themeStore";
 
 export default function SubmitMusicPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SubmitMusicContent />
+    </Suspense>
+  );
+}
+
+function SubmitMusicContent() {
+  const { theme } = useThemeStore();
+  const searchParams = useSearchParams();
+  const songId = searchParams.get("id");
+
   const [artistName, setArtistName] = useState("");
   const [songTitle, setSongTitle] = useState("");
   const [albumTitle, setAlbumTitle] = useState("");
@@ -24,16 +38,51 @@ export default function SubmitMusicPage() {
   const [agree, setAgree] = useState(false);
 
   const [file, setFile] = useState<File | null>(null);
+  const [existingAudioUrl, setExistingAudioUrl] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [loading, setLoading] = useState(false);
 
   const [openStage, setOpenStage] = useState(false);
   const stages = ["Draft", "Demo", "Mixing", "Mastering", "Finished"];
 
-  const inputClass = "w-full p-4 bg-[#222] border border-[#333] rounded-xl outline-none focus:border-[#ff4b5c] transition-colors";
+  useEffect(() => {
+    if (songId) {
+      fetchSongDetails();
+    }
+  }, [songId]);
+
+  const fetchSongDetails = async () => {
+    const { data, error } = await supabase
+      .from("songs")
+      .select("*")
+      .eq("id", songId)
+      .single();
+
+    if (error) {
+      console.error("Error fetching song:", error);
+      alert("Error fetching song details");
+    } else if (data) {
+      setArtistName(data.artist || "");
+      setSongTitle(data.title || "");
+      setAlbumTitle(data.album || "");
+      setReleaseDate(data.release_date || "");
+      setIsrc(data.isrc || "");
+      setStage(data.production_stage || "");
+      setCreditLabel(data.credit_label || "");
+      setLyrics(data.lyrics || "");
+      setInsta(data.instagram || "");
+      setSoundCloud(data.soundcloud || "");
+      setWebsite(data.website || "");
+      setTwitter(data.twitter || "");
+      setSpotify(data.spotify || "");
+      setFacebook(data.facebook || "");
+      setExistingAudioUrl(data.audio_url || data.song_url);
+      setAgree(true); // Auto-agree for editing? Or force re-agree? Let's auto-agree or leave it. Maybe leave it false to force re-check. Actually, for UX, if editing, maybe just set true.
+    }
+  };
 
   const uploadMusic = async () => {
-    if (!file || !artistName || !songTitle || !agree)
+    if ((!file && !existingAudioUrl) || !artistName || !songTitle || !agree)
       return alert("Please fill required fields!");
 
     // Check if user is logged in
@@ -46,35 +95,41 @@ export default function SubmitMusicPage() {
     setUploadProgress(10);
 
     try {
-      // 1. Upload File
-      const ext = file.name.split(".").pop();
-      const filePath = `music_${Date.now()}.${ext}`;
+      let publicUrl = existingAudioUrl;
 
-      const { error: uploadErr } = await supabase.storage
-        .from("music-files")
-        .upload(filePath, file, {
-          upsert: false,
-        });
+      // 1. Upload File if new file selected
+      if (file) {
+        const ext = file.name.split(".").pop();
+        const filePath = `music_${Date.now()}.${ext}`;
 
-      if (uploadErr) {
-        console.error("Upload Error:", uploadErr);
-        throw new Error(`Upload failed: ${uploadErr.message}`);
+        const { error: uploadErr } = await supabase.storage
+          .from("music-files")
+          .upload(filePath, file, {
+            upsert: false,
+          });
+
+        if (uploadErr) {
+          console.error("Upload Error:", uploadErr);
+          throw new Error(`Upload failed: ${uploadErr.message}`);
+        }
+
+        setUploadProgress(70);
+
+        const { data: urlData } = supabase.storage
+          .from("music-files")
+          .getPublicUrl(filePath);
+
+        publicUrl = urlData.publicUrl;
       }
 
-      setUploadProgress(70);
-
-      const { data: urlData } = supabase.storage
-        .from("music-files")
-        .getPublicUrl(filePath);
-
-      // 2. Insert Database Record
-      const { error: dbError } = await supabase.from("songs").insert({
+      // 2. Insert or Update Database Record
+      const songData = {
         title: songTitle,
         artist: artistName,
         album: albumTitle || null,
-        audio_url: urlData.publicUrl,
-        song_url: urlData.publicUrl, // Added this to satisfy the constraint
-        cover_url: null,
+        audio_url: publicUrl,
+        song_url: publicUrl,
+        // cover_url: null, // Don't overwrite cover_url if we are not editing it here (we don't have cover upload here yet)
         release_date: releaseDate || null,
         isrc: isrc || null,
         production_stage: stage || null,
@@ -87,22 +142,41 @@ export default function SubmitMusicPage() {
         spotify: spotify || null,
         facebook: facebook || null,
         user_id: user.id,
-      });
+      };
 
-      if (dbError) {
-        console.error("Database Error:", dbError);
-        throw new Error(`Database save failed: ${dbError.message}`);
+      let error;
+      if (songId) {
+        const { error: updateError } = await supabase
+          .from("songs")
+          .update(songData)
+          .eq("id", songId);
+        error = updateError;
+      } else {
+        const { error: insertError } = await supabase
+          .from("songs")
+          .insert({ ...songData, cover_url: null }); // Only set cover_url null on insert
+        error = insertError;
+      }
+
+      if (error) {
+        console.error("Database Error:", error);
+        throw new Error(`Database save failed: ${error.message}`);
       }
 
       setUploadProgress(100);
-      alert("Music uploaded successfully!");
+      alert(songId ? "Music updated successfully!" : "Music uploaded successfully!");
 
-      // Reset form
-      setFile(null);
-      setArtistName("");
-      setSongTitle("");
-      setAlbumTitle("");
-      setAgree(false);
+      if (!songId) {
+        // Reset form only if creating new
+        setFile(null);
+        setArtistName("");
+        setSongTitle("");
+        setAlbumTitle("");
+        setAgree(false);
+      } else {
+        // Maybe redirect back to submissions?
+        window.location.href = "/submissions";
+      }
 
     } catch (error: any) {
       console.error(error);
@@ -113,19 +187,33 @@ export default function SubmitMusicPage() {
   };
 
   return (
-    <div className="w-full min-h-screen px-6 py-8 text-white">
+    <div
+      style={{ color: theme === "dark" ? "#fff" : "#1f2937" }}
+      className="w-full min-h-screen px-6 py-8"
+    >
 
-      <div className="bg-[#1b1b1b] p-10 rounded-2xl border border-[#2d2d2d] max-w-5xl mx-auto">
+      <div
+        style={{
+          backgroundColor: theme === "dark" ? "#1b1b1b" : "#ffffff",
+          borderColor: theme === "dark" ? "#2d2d2d" : "#e5e7eb"
+        }}
+        className="p-10 rounded-2xl border max-w-5xl mx-auto"
+      >
 
-        <h1 className="text-2xl font-semibold mb-2">Submit music</h1>
-        <p className="text-gray-400 mb-8">To upload musics click on box or drop file here!</p>
+        <h1 className="text-2xl font-semibold mb-2">{songId ? "Edit Music" : "Submit music"}</h1>
+        <p
+          style={{ color: theme === "dark" ? "#9ca3af" : "#6b7280" }}
+          className="mb-8"
+        >
+          {songId ? "Update your music details below." : "To upload musics click on box or drop file here!"}
+        </p>
 
         {/* Upload Box */}
         <div className="flex items-center gap-6 mb-8">
           <label className="
             w-40 h-40 border-2 border-dashed border-[#ff4b5c]
             rounded-xl flex flex-col items-center justify-center
-            cursor-pointer hover:bg-[#262626] transition
+            cursor-pointer hover:bg-opacity-10 hover:bg-gray-500 transition
           ">
             <UploadCloud size={35} className="text-[#ff4b5c]" />
             <input
@@ -139,7 +227,12 @@ export default function SubmitMusicPage() {
           {file ? (
             <div className="flex flex-col gap-2">
               <p className="font-medium">{file.name}</p>
-              <p className="text-sm text-gray-400">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+              <p
+                style={{ color: theme === "dark" ? "#9ca3af" : "#6b7280" }}
+                className="text-sm"
+              >
+                {(file.size / 1024 / 1024).toFixed(2)} MB
+              </p>
               <button
                 onClick={() => setFile(null)}
                 className="text-red-400 border border-red-400 px-4 py-1.5 rounded-lg flex items-center gap-2 text-sm w-fit hover:bg-red-500/10"
@@ -147,45 +240,127 @@ export default function SubmitMusicPage() {
                 <Trash2 size={16} /> Remove
               </button>
             </div>
+          ) : existingAudioUrl ? (
+            <div className="flex flex-col gap-2">
+              <p className="font-medium text-green-500">Existing Audio File Loaded</p>
+              <p className="text-sm opacity-60">Upload new file to replace</p>
+            </div>
           ) : (
-            <p className="text-gray-500 text-sm">No file selected</p>
+            <p
+              style={{ color: theme === "dark" ? "#6b7280" : "#9ca3af" }}
+              className="text-sm"
+            >
+              No file selected
+            </p>
           )}
         </div>
 
         {/* Progress bar */}
         {loading && (
           <div className="mb-6">
-            <div className="h-2 w-full bg-[#333] rounded-xl overflow-hidden">
+            <div
+              style={{ backgroundColor: theme === "dark" ? "#333" : "#e5e7eb" }}
+              className="h-2 w-full rounded-xl overflow-hidden"
+            >
               <div
                 className="h-2 bg-[#ff4b5c] transition-all duration-300"
                 style={{ width: `${uploadProgress}%` }}
               />
             </div>
-            <p className="text-xs text-gray-400 mt-1">{uploadProgress}%</p>
+            <p
+              style={{ color: theme === "dark" ? "#9ca3af" : "#6b7280" }}
+              className="text-xs mt-1"
+            >
+              {uploadProgress}%
+            </p>
           </div>
         )}
 
         {/* 2-column input grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
 
-          <input className={inputClass} placeholder="Artist Name" value={artistName} onChange={(e) => setArtistName(e.target.value)} />
+          <input
+            style={{
+              backgroundColor: theme === "dark" ? "#222" : "#f3f4f6",
+              borderColor: theme === "dark" ? "#333" : "#d1d5db",
+              color: theme === "dark" ? "#fff" : "#1f2937"
+            }}
+            className="w-full p-4 border rounded-xl outline-none focus:border-[#ff4b5c] transition-colors"
+            placeholder="Artist Name"
+            value={artistName}
+            onChange={(e) => setArtistName(e.target.value)}
+          />
 
-          <input className={inputClass} placeholder="Album title (optional)" value={albumTitle} onChange={(e) => setAlbumTitle(e.target.value)} />
+          <input
+            style={{
+              backgroundColor: theme === "dark" ? "#222" : "#f3f4f6",
+              borderColor: theme === "dark" ? "#333" : "#d1d5db",
+              color: theme === "dark" ? "#fff" : "#1f2937"
+            }}
+            className="w-full p-4 border rounded-xl outline-none focus:border-[#ff4b5c] transition-colors"
+            placeholder="Album title (optional)"
+            value={albumTitle}
+            onChange={(e) => setAlbumTitle(e.target.value)}
+          />
 
-          <input className={inputClass} placeholder="Artist song title" value={songTitle} onChange={(e) => setSongTitle(e.target.value)} />
+          <input
+            style={{
+              backgroundColor: theme === "dark" ? "#222" : "#f3f4f6",
+              borderColor: theme === "dark" ? "#333" : "#d1d5db",
+              color: theme === "dark" ? "#fff" : "#1f2937"
+            }}
+            className="w-full p-4 border rounded-xl outline-none focus:border-[#ff4b5c] transition-colors"
+            placeholder="Artist song title"
+            value={songTitle}
+            onChange={(e) => setSongTitle(e.target.value)}
+          />
 
-          <input className={inputClass} placeholder="ISRC (optional)" value={isrc} onChange={(e) => setIsrc(e.target.value)} />
+          <input
+            style={{
+              backgroundColor: theme === "dark" ? "#222" : "#f3f4f6",
+              borderColor: theme === "dark" ? "#333" : "#d1d5db",
+              color: theme === "dark" ? "#fff" : "#1f2937"
+            }}
+            className="w-full p-4 border rounded-xl outline-none focus:border-[#ff4b5c] transition-colors"
+            placeholder="ISRC (optional)"
+            value={isrc}
+            onChange={(e) => setIsrc(e.target.value)}
+          />
 
-          <input className={inputClass} placeholder="Release Date (YYYY-MM-DD)" value={releaseDate} onChange={(e) => setReleaseDate(e.target.value)} />
+          <input
+            style={{
+              backgroundColor: theme === "dark" ? "#222" : "#f3f4f6",
+              borderColor: theme === "dark" ? "#333" : "#d1d5db",
+              color: theme === "dark" ? "#fff" : "#1f2937"
+            }}
+            className="w-full p-4 border rounded-xl outline-none focus:border-[#ff4b5c] transition-colors"
+            placeholder="Release Date (YYYY-MM-DD)"
+            value={releaseDate}
+            onChange={(e) => setReleaseDate(e.target.value)}
+          />
 
           {/* Stage dropdown */}
           <div className="relative">
-            <div onClick={() => setOpenStage(!openStage)} className={`${inputClass} flex justify-between cursor-pointer`}>
+            <div
+              onClick={() => setOpenStage(!openStage)}
+              style={{
+                backgroundColor: theme === "dark" ? "#222" : "#f3f4f6",
+                borderColor: theme === "dark" ? "#333" : "#d1d5db",
+                color: theme === "dark" ? "#fff" : "#1f2937"
+              }}
+              className="w-full p-4 border rounded-xl flex justify-between cursor-pointer"
+            >
               {stage || "Production stage"}
               <ChevronDown />
             </div>
             {openStage && (
-              <div className="absolute mt-1 bg-[#222] border border-[#333] rounded-xl w-full z-10 shadow-xl">
+              <div
+                style={{
+                  backgroundColor: theme === "dark" ? "#222" : "#ffffff",
+                  borderColor: theme === "dark" ? "#333" : "#d1d5db"
+                }}
+                className="absolute mt-1 border rounded-xl w-full z-10 shadow-xl"
+              >
                 {stages.map((s) => (
                   <p
                     key={s}
@@ -193,7 +368,10 @@ export default function SubmitMusicPage() {
                       setStage(s);
                       setOpenStage(false);
                     }}
-                    className="px-4 py-3 hover:bg-[#333] cursor-pointer first:rounded-t-xl last:rounded-b-xl"
+                    style={{
+                      color: theme === "dark" ? "#fff" : "#1f2937"
+                    }}
+                    className="px-4 py-3 hover:bg-opacity-20 hover:bg-gray-500 cursor-pointer first:rounded-t-xl last:rounded-b-xl"
                   >
                     {s}
                   </p>
@@ -202,28 +380,71 @@ export default function SubmitMusicPage() {
             )}
           </div>
 
-          <input className={inputClass} placeholder="Record label (optional)" value={creditLabel} onChange={(e) => setCreditLabel(e.target.value)} />
+          <input
+            style={{
+              backgroundColor: theme === "dark" ? "#222" : "#f3f4f6",
+              borderColor: theme === "dark" ? "#333" : "#d1d5db",
+              color: theme === "dark" ? "#fff" : "#1f2937"
+            }}
+            className="w-full p-4 border rounded-xl outline-none focus:border-[#ff4b5c] transition-colors"
+            placeholder="Record label (optional)"
+            value={creditLabel}
+            onChange={(e) => setCreditLabel(e.target.value)}
+          />
 
-          <input className={inputClass} placeholder="Lyrics (Optional)" value={lyrics} onChange={(e) => setLyrics(e.target.value)} />
+          <input
+            style={{
+              backgroundColor: theme === "dark" ? "#222" : "#f3f4f6",
+              borderColor: theme === "dark" ? "#333" : "#d1d5db",
+              color: theme === "dark" ? "#fff" : "#1f2937"
+            }}
+            className="w-full p-4 border rounded-xl outline-none focus:border-[#ff4b5c] transition-colors"
+            placeholder="Lyrics (Optional)"
+            value={lyrics}
+            onChange={(e) => setLyrics(e.target.value)}
+          />
 
         </div>
 
         {/* SOCIAL GRID */}
-        <p className="text-gray-400 mb-2">Artist social (optional)</p>
+        <p
+          style={{ color: theme === "dark" ? "#9ca3af" : "#6b7280" }}
+          className="mb-2"
+        >
+          Artist social (optional)
+        </p>
 
         <div className="grid grid-cols-2 gap-6 mb-8">
-          <input className={inputClass} placeholder="Instagram" value={insta} onChange={(e) => setInsta(e.target.value)} />
-          <input className={inputClass} placeholder="Twitter" value={twitter} onChange={(e) => setTwitter(e.target.value)} />
-          <input className={inputClass} placeholder="Soundcloud" value={soundCloud} onChange={(e) => setSoundCloud(e.target.value)} />
-          <input className={inputClass} placeholder="Spotify" value={spotify} onChange={(e) => setSpotify(e.target.value)} />
-          <input className={inputClass} placeholder="Website" value={website} onChange={(e) => setWebsite(e.target.value)} />
-          <input className={inputClass} placeholder="Facebook" value={facebook} onChange={(e) => setFacebook(e.target.value)} />
+          {[
+            { placeholder: "Instagram", value: insta, onChange: setInsta },
+            { placeholder: "Twitter", value: twitter, onChange: setTwitter },
+            { placeholder: "Soundcloud", value: soundCloud, onChange: setSoundCloud },
+            { placeholder: "Spotify", value: spotify, onChange: setSpotify },
+            { placeholder: "Website", value: website, onChange: setWebsite },
+            { placeholder: "Facebook", value: facebook, onChange: setFacebook }
+          ].map((field, idx) => (
+            <input
+              key={idx}
+              style={{
+                backgroundColor: theme === "dark" ? "#222" : "#f3f4f6",
+                borderColor: theme === "dark" ? "#333" : "#d1d5db",
+                color: theme === "dark" ? "#fff" : "#1f2937"
+              }}
+              className="w-full p-4 border rounded-xl outline-none focus:border-[#ff4b5c] transition-colors"
+              placeholder={field.placeholder}
+              value={field.value}
+              onChange={(e) => field.onChange(e.target.value)}
+            />
+          ))}
         </div>
 
         {/* TERMS */}
         <label className="flex items-center gap-3 mb-8 cursor-pointer">
           <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} />
-          <span className="text-gray-400 text-sm">
+          <span
+            style={{ color: theme === "dark" ? "#9ca3af" : "#6b7280" }}
+            className="text-sm"
+          >
             I read and accepted the <span className="text-blue-400 underline">terms and conditions</span>
           </span>
         </label>
@@ -236,7 +457,7 @@ export default function SubmitMusicPage() {
             className={`px-8 py-3 rounded-xl shadow-lg flex items-center gap-2 font-semibold transition-colors ${loading ? "bg-gray-600 cursor-not-allowed" : "bg-[#ff4b5c] hover:bg-[#ff6b7c]"
               }`}
           >
-            {loading ? <Loader className="animate-spin" size={18} /> : "Upload MP3"}
+            {loading ? <Loader className="animate-spin" size={18} /> : (songId ? "Update Song" : "Upload MP3")}
           </button>
         </div>
 

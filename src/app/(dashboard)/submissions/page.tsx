@@ -1,13 +1,13 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { supabase } from "@/utils/supabaseClient";
 import { motion } from "framer-motion";
 import SongCard from "@/components/Music/SongCard";
 import ArtCard from "@/components/Art/ArtCard";
 import Lightbox from "yet-another-react-lightbox";
 import Zoom from "yet-another-react-lightbox/plugins/zoom";
-import { Play, Pause } from "lucide-react";
+import { useMusic } from "@/store/useMusic";
 
 export default function SubmissionsPage() {
   const [tab, setTab] = useState<"music" | "arts">("music");
@@ -18,10 +18,8 @@ export default function SubmissionsPage() {
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [lightboxImages, setLightboxImages] = useState<string[]>([]);
 
-  // Music player state
-  const [currentSong, setCurrentSong] = useState<any>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const audioRef = useRef<HTMLAudioElement>(null);
+  // Global Music Player
+  const { play } = useMusic();
 
   // Load data when page loads
   useEffect(() => {
@@ -60,52 +58,72 @@ export default function SubmissionsPage() {
 
   // ⭐ Music Player Functions
   const handlePlaySong = (song: any) => {
-    console.log("Attempting to play song:", song);
-    const url = song.audio_url || song.song_url;
-    console.log("Audio URL:", url);
+    // Create playlist from current music list, filtering out invalid songs
+    const validSongs = music.filter(s => s.audio_url || s.song_url);
 
-    if (!url) {
-      alert("Error: No audio URL found for this song!");
-      return;
-    }
+    const playlist = validSongs.map(s => ({
+      url: s.audio_url || s.song_url,
+      title: s.title,
+      artist: s.artist,
+      cover_url: s.cover_url
+    }));
 
-    if (currentSong?.id === song.id) {
-      // Toggle play/pause for same song
-      togglePlayPause();
+    const index = validSongs.findIndex(s => s.id === song.id);
+    if (index !== -1) {
+      play(playlist, index);
     } else {
-      // Play new song
-      setCurrentSong(song);
-      setIsPlaying(true);
-      if (audioRef.current) {
-        audioRef.current.src = url;
-        audioRef.current.play().catch(e => console.error("Playback failed:", e));
-      }
+      alert("This song has no valid audio URL.");
     }
   };
 
-  const togglePlayPause = () => {
-    if (audioRef.current) {
-      if (isPlaying) {
-        audioRef.current.pause();
-        setIsPlaying(false);
-      } else {
-        audioRef.current.play().catch(e => console.error("Playback failed:", e));
-        setIsPlaying(true);
-      }
+  const handleDeleteSong = async (song: any) => {
+    if (!confirm("Are you sure you want to delete this song?")) return;
+
+    const { error } = await supabase.from("songs").delete().eq("id", song.id);
+    if (error) {
+      alert("Error deleting song: " + error.message);
+    } else {
+      setMusic(music.filter((s) => s.id !== song.id));
+      alert("Song deleted successfully!");
+    }
+  };
+
+  const handleEditSong = (song: any) => {
+    window.location.href = `/submit-music?id=${song.id}`;
+  };
+
+  const handleDownloadSong = async (song: any) => {
+    const url = song.audio_url || song.song_url;
+    if (!url) return alert("No audio URL found");
+
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = `${song.title || 'song'}.mp3`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (e) {
+      console.error("Download failed", e);
+      window.open(url, "_blank");
     }
   };
 
   return (
-    <div className="min-h-screen bg-black text-white px-6 py-10 pb-32">
+    <div className="min-h-screen bg-[var(--bg)] text-[var(--text)] px-6 py-10 pb-32">
 
       {/* Title */}
       <h2 className="text-xl font-semibold mb-4">My submissions</h2>
 
       {/* Tabs */}
-      <div className="flex gap-10 items-center border-b border-gray-700 pb-1 mb-6">
+      <div className="flex gap-10 items-center border-b border-[var(--border)] pb-1 mb-6">
         <button
           onClick={() => setTab("music")}
-          className={`pb-2 flex items-center gap-1 ${tab === "music" ? "text-red-400 border-b-2 border-red-400" : "text-gray-400"
+          className={`pb-2 flex items-center gap-1 ${tab === "music" ? "text-red-400 border-b-2 border-red-400" : "text-[var(--text-secondary)]"
             }`}
         >
           🎵 Music
@@ -113,7 +131,7 @@ export default function SubmissionsPage() {
 
         <button
           onClick={() => setTab("arts")}
-          className={`pb-2 flex items-center gap-1 ${tab === "arts" ? "text-red-400 border-b-2 border-red-400" : "text-gray-400"
+          className={`pb-2 flex items-center gap-1 ${tab === "arts" ? "text-red-400 border-b-2 border-red-400" : "text-[var(--text-secondary)]"
             }`}
         >
           🖼️ Arts
@@ -127,7 +145,7 @@ export default function SubmissionsPage() {
           animate={{ opacity: 1, y: 0 }}
           className="flex flex-col items-center mt-20"
         >
-          <div className="w-32 h-32 bg-gray-800 rounded-full flex items-center justify-center mb-6">
+          <div className="w-32 h-32 bg-[var(--card)] rounded-full flex items-center justify-center mb-6">
             <span className="text-6xl">{tab === "music" ? "🎵" : "🖼️"}</span>
           </div>
 
@@ -161,8 +179,9 @@ export default function SubmissionsPage() {
                 <SongCard
                   song={item}
                   onPlay={() => handlePlaySong(item)}
-                  onEdit={() => console.log("Edit", item)}
-                  onDownload={() => window.open(item.audio_url || item.song_url, "_blank")}
+                  onEdit={() => handleEditSong(item)}
+                  onDownload={() => handleDownloadSong(item)}
+                  onDelete={() => handleDeleteSong(item)}
                 />
               ) : (
                 <ArtCard
@@ -183,52 +202,6 @@ export default function SubmissionsPage() {
         index={lightboxIndex}
         plugins={[Zoom]}
       />
-
-      {/* ⭐ MUSIC PLAYER - Fixed at bottom */}
-      {currentSong && (
-        <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-r from-[#1a1a1a] to-[#2a2a2a] border-t border-gray-800 p-4 shadow-2xl z-50">
-          <div className="max-w-6xl mx-auto flex items-center gap-4">
-            {/* Audio element with CONTROLS for debugging */}
-            <audio
-              ref={audioRef}
-              controls
-              className="hidden" // Keep hidden but available for logic
-              onEnded={() => setIsPlaying(false)}
-              onPlay={() => setIsPlaying(true)}
-              onPause={() => setIsPlaying(false)}
-            />
-
-            {/* Play/Pause Button */}
-            <button
-              onClick={togglePlayPause}
-              className="w-12 h-12 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center transition-colors"
-            >
-              {isPlaying ? (
-                <Pause size={20} className="text-white" fill="white" />
-              ) : (
-                <Play size={20} className="text-white ml-1" fill="white" />
-              )}
-            </button>
-
-            {/* Song Info */}
-            <div className="flex-1">
-              <h3 className="font-semibold text-white">{currentSong.title}</h3>
-              <p className="text-gray-400 text-sm">{currentSong.artist}</p>
-              {/* Debug URL display */}
-              <p className="text-[10px] text-gray-600 truncate max-w-md">
-                {currentSong.audio_url || currentSong.song_url}
-              </p>
-            </div>
-
-            {/* Now Playing Badge */}
-            <div className="hidden md:block">
-              <span className="px-3 py-1 bg-red-500/20 text-red-400 text-sm rounded-full">
-                Now Playing
-              </span>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

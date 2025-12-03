@@ -5,10 +5,16 @@ import { useSearchParams } from "next/navigation";
 import { supabase } from "@/utils/supabaseClient";
 import AlbumCard from "@/components/Music/AlbumCard";
 import SongCard from "@/components/Music/SongCard";
+import { useMusic } from "@/store/useMusic";
+import { useUser } from "@supabase/auth-helpers-react";
+import { useRouter } from "next/navigation";
 
 export default function SearchPage() {
     const searchParams = useSearchParams();
     const query = searchParams.get("q") || "";
+    const { play } = useMusic();
+    const user = useUser();
+    const router = useRouter();
 
     const [albums, setAlbums] = useState<any[]>([]);
     const [songs, setSongs] = useState<any[]>([]);
@@ -89,6 +95,21 @@ export default function SearchPage() {
                                             artist: s.artist,
                                             cover_url: s.cover_url,
                                             audio_url: s.song_url
+                                        }}
+                                        onPlay={(song) => {
+                                            if (!user) {
+                                                router.push("/signup");
+                                                return;
+                                            }
+                                            // Create playlist from current songs
+                                            const playlist = songs.map(s => ({
+                                                url: s.audio_url || s.song_url,
+                                                title: s.title,
+                                                artist: s.artist,
+                                                cover_url: s.cover_url
+                                            }));
+                                            const index = songs.findIndex(s => s.id === song.id);
+                                            play(playlist, index);
                                         }}
                                     />
                                 ))}

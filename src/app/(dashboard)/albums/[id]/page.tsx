@@ -58,7 +58,16 @@ export default function AlbumDetailsPage() {
                 artist: song.artist || album.artist,
                 cover_url: song.cover_url || album.cover_url,
               }}
-              onPlay={() => play(song.audio_url || song.song_url, song.title)}
+              onPlay={() => {
+                const playlist = songs.map(s => ({
+                  url: s.audio_url || s.song_url,
+                  title: s.title,
+                  artist: s.artist || album.artist,
+                  cover_url: s.cover_url || album.cover_url
+                }));
+                const index = songs.findIndex(s => s.id === song.id);
+                play(playlist, index);
+              }}
             />
           ))}
         </div>

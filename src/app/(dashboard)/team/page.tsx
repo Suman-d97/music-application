@@ -48,8 +48,10 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/utils/supabaseClient";
+import { useThemeStore } from "@/store/themeStore";
 
 export default function TeamPage() {
+  const { theme } = useThemeStore();
   const [team, setTeam] = useState<any[]>([]);
 
   useEffect(() => {
@@ -66,7 +68,10 @@ export default function TeamPage() {
   }, []);
 
   return (
-    <div className="px-6 py-10 text-white">
+    <div
+      style={{ color: theme === "dark" ? "#fff" : "#1f2937" }}
+      className="px-6 py-10"
+    >
 
       {/* TITLE */}
       <h1 className="text-2xl font-semibold mb-8">Our team</h1>
@@ -80,7 +85,10 @@ export default function TeamPage() {
             className="flex flex-col items-center text-center"
           >
             {/* IMAGE BLOCK (FIGMA STYLE) */}
-            <div className="w-36 h-40 rounded-xl overflow-hidden bg-[#222] shadow-md">
+            <div
+              style={{ backgroundColor: theme === "dark" ? "#222" : "#e5e7eb" }}
+              className="w-36 h-40 rounded-xl overflow-hidden shadow-md"
+            >
               <img
                 src={member.avatar_url || "/default-avatar.png"}
                 className="w-full h-full object-cover"
@@ -91,7 +99,12 @@ export default function TeamPage() {
             <h2 className="mt-3 text-lg font-semibold">{member.name}</h2>
 
             {/* ROLE */}
-            <p className="text-gray-400 text-sm">{member.role}</p>
+            <p
+              style={{ color: theme === "dark" ? "#9ca3af" : "#6b7280" }}
+              className="text-sm"
+            >
+              {member.role}
+            </p>
           </div>
         ))}
 

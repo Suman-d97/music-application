@@ -3,17 +3,33 @@
 /* ---- THEME VARIABLES ---- */
 
 html.dark {
-  --bg: #121212;
+  --bg: #0f1113;
+  --bg-secondary: #1b1b1b;
   --card: #1b1b1b;
   --text: #e6e6e6;
-  --border: #2a2a2a;
+  --text-secondary: #a0a0a0;
+  --border: #333;
+  --hover: #2a2a2a;
+  --purple-primary: #8268FF;
+  --purple-secondary: #9D7FFF;
+  --dropdown-bg: #1b1b1b;
+  --banner-gradient-from: #8268FF;
+  --banner-gradient-to: #9D7FFF;
 }
 
 html.light {
-  --bg: #f4f4f5;
+  --bg: #f5f5f7;
+  --bg-secondary: #ffffff;
   --card: #ffffff;
-  --text: #0f0f0f;
-  --border: #d4d4d4;
+  --text: #1d1d1f;
+  --text-secondary: #6e6e73;
+  --border: #d2d2d7;
+  --hover: #f0f0f5;
+  --purple-primary: #7c5cff;
+  --purple-secondary: #9580ff;
+  --dropdown-bg: #ffffff;
+  --banner-gradient-from: #7c5cff;
+  --banner-gradient-to: #9580ff;
 }
 
 /* ---- GLOBAL USE ---- */
@@ -23,19 +39,23 @@ html, body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
-  transition: background 0.25s ease, color 0.25s ease;
+  transition: background 0.3s ease, color 0.3s ease;
   font-family: Inter, system-ui, sans-serif;
 }
 
 /* scrollbars */
 ::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 6px; }
+::-webkit-scrollbar-thumb { 
+  background: var(--border); 
+  border-radius: 6px; 
+}
 ::-webkit-scrollbar-track { background: transparent; }
 
 /* Card */
 .card {
   background-color: var(--card);
   border: 1px solid var(--border);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 /* Inputs */
@@ -43,6 +63,7 @@ html, body {
   background: var(--card);
   border: 1px solid var(--border);
   color: var(--text);
+  transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
 /* Buttons */
@@ -50,10 +71,12 @@ html, body {
   background: var(--card);
   border: 1px solid var(--border);
   color: var(--text);
+  transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
 .btn-ghost {
   background: transparent;
   border: 1px solid var(--border);
   color: var(--text);
+  transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }

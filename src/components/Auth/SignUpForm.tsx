@@ -6,7 +6,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { supabase } from "@/utils/supabaseClient";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Upload } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { setUser } from "@/store/userSlice";
 import { motion } from "framer-motion";
@@ -38,6 +38,16 @@ export default function SignUpForm() {
   const [shake, setShake] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setAvatarFile(file);
+      setAvatarPreview(URL.createObjectURL(file));
+    }
+  };
 
   const {
     register,
@@ -47,12 +57,34 @@ export default function SignUpForm() {
     resolver: zodResolver(SignUpSchema),
     defaultValues: { accept: false },
   });
-
   const onSubmit = async (v: any) => {
     setErrorMsg("");
     setSuccessMsg("");
 
     try {
+      let avatarUrl = "";
+
+      // Upload Avatar if selected
+      if (avatarFile) {
+        const fileExt = avatarFile.name.split(".").pop();
+        const fileName = `${Date.now()}.${fileExt}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from("avatars")
+          .upload(fileName, avatarFile);
+
+        if (uploadError) {
+          console.error("Avatar upload error:", uploadError);
+          throw new Error("Error uploading avatar: " + uploadError.message);
+        }
+
+        const { data: publicUrlData } = supabase.storage
+          .from("avatars")
+          .getPublicUrl(fileName);
+
+        avatarUrl = publicUrlData.publicUrl;
+      }
+
       // Create user in Supabase Auth
       const { data, error } = await supabase.auth.signUp({
         email: v.email,
@@ -60,6 +92,7 @@ export default function SignUpForm() {
         options: {
           data: {
             full_name: v.name,
+            avatar_url: avatarUrl,
           },
         },
       });
@@ -70,7 +103,6 @@ export default function SignUpForm() {
         setErrorMsg(error.message);
         return;
       }
-
       if (data.user) {
         // Success! User created in Auth
         dispatch(setUser(data.user));
@@ -124,6 +156,33 @@ export default function SignUpForm() {
 
           {/* INPUTS */}
           <div className="space-y-4 mb-6">
+            {/* Avatar Upload */}
+            <div className="flex flex-col items-center mb-4">
+              <label className="cursor-pointer group relative">
+                <div className="w-24 h-24 rounded-full bg-[#2a2a2a] border-2 border-[#3a3a3a] flex items-center justify-center overflow-hidden group-hover:border-blue-500 transition-colors">
+                  {avatarPreview ? (
+                    <img
+                      src={avatarPreview}
+                      alt="Avatar Preview"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <Upload className="text-gray-400 group-hover:text-blue-500 transition-colors" size={32} />
+                  )}
+                </div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  className="hidden"
+                />
+                <div className="absolute bottom-0 right-0 bg-blue-600 rounded-full p-1.5 border-2 border-[#1b1b1b]">
+                  <Upload size={12} className="text-white" />
+                </div>
+              </label>
+              <p className="text-xs text-gray-500 mt-2">Upload Profile Picture</p>
+            </div>
+
             {/* Name */}
             <div>
               <input

@@ -8,8 +8,8 @@ import { Camera, Eye, EyeOff, Trash2 } from "lucide-react";
 export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [showOld, setShowOld] = useState(false);
-const [showNew, setShowNew] = useState(false);
-const [showRepeat, setShowRepeat] = useState(false);
+  const [showNew, setShowNew] = useState(false);
+  const [showRepeat, setShowRepeat] = useState(false);
 
   // user + profile fields
   const [userId, setUserId] = useState<string>("");
@@ -55,7 +55,8 @@ const [showRepeat, setShowRepeat] = useState(false);
       .single();
 
     if (data) {
-      setAvatarUrl(data.avatar_url || "");
+      // Use avatar from profiles table, or fall back to user metadata
+      setAvatarUrl(data.avatar_url || user.user_metadata?.avatar_url || "");
       setFullName(data.full_name || "");
       setEmail(data.email || user.email || "");
       setCity(data.city || "");
@@ -64,6 +65,11 @@ const [showRepeat, setShowRepeat] = useState(false);
       setCompany(data.company || "");
       setJobTitle(data.job_title || "");
       setWebsite(data.website || "");
+    } else {
+      // No profile record yet, use user metadata
+      setAvatarUrl(user.user_metadata?.avatar_url || "");
+      setFullName(user.user_metadata?.full_name || "");
+      setEmail(user.email || "");
     }
 
     setLoading(false);
@@ -240,75 +246,75 @@ const [showRepeat, setShowRepeat] = useState(false);
         </div>
       </div>
 
-  
+
       {/* -------------------- PASSWORD RECOVERY -------------------- */}
-<div className="mt-10">
-  <h4 className="text-lg font-semibold mb-3">Password recovery</h4>
+      <div className="mt-10">
+        <h4 className="text-lg font-semibold mb-3">Password recovery</h4>
 
-  <div className="space-y-3">
+        <div className="space-y-3">
 
-    {/* Old password */}
-    <div className="relative">
-      <input
-        type={showOld ? "text" : "password"}
-        placeholder="Old password"
-        value={oldPassword}
-        onChange={(e) => setOldPassword(e.target.value)}
-        className="w-full bg-[#2b2b2b] rounded-[10px] px-4 py-3 border border-[#3a3a3a]"
-      />
-      <button
-        type="button"
-        onClick={() => setShowOld(!showOld)}
-        className="absolute right-3 top-3 text-gray-300 cursor-pointer"
-      >
-        {showOld ? <EyeOff size={18} /> : <Eye size={18} />}
-      </button>
-    </div>
+          {/* Old password */}
+          <div className="relative">
+            <input
+              type={showOld ? "text" : "password"}
+              placeholder="Old password"
+              value={oldPassword}
+              onChange={(e) => setOldPassword(e.target.value)}
+              className="w-full bg-[#2b2b2b] rounded-[10px] px-4 py-3 border border-[#3a3a3a]"
+            />
+            <button
+              type="button"
+              onClick={() => setShowOld(!showOld)}
+              className="absolute right-3 top-3 text-gray-300 cursor-pointer"
+            >
+              {showOld ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
 
-    {/* New password */}
-    <div className="relative">
-      <input
-        type={showNew ? "text" : "password"}
-        placeholder="New password"
-        value={newPassword}
-        onChange={(e) => setNewPassword(e.target.value)}
-        className="w-full bg-[#2b2b2b] rounded-[10px] px-4 py-3 border border-[#3a3a3a]"
-      />
-      <button
-        type="button"
-        onClick={() => setShowNew(!showNew)}
-        className="absolute right-3 top-3 text-gray-300 cursor-pointer"
-      >
-        {showNew ? <EyeOff size={18} /> : <Eye size={18} />}
-      </button>
-    </div>
+          {/* New password */}
+          <div className="relative">
+            <input
+              type={showNew ? "text" : "password"}
+              placeholder="New password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              className="w-full bg-[#2b2b2b] rounded-[10px] px-4 py-3 border border-[#3a3a3a]"
+            />
+            <button
+              type="button"
+              onClick={() => setShowNew(!showNew)}
+              className="absolute right-3 top-3 text-gray-300 cursor-pointer"
+            >
+              {showNew ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
 
-    {/* Repeat password */}
-    <div className="relative">
-      <input
-        type={showRepeat ? "text" : "password"}
-        placeholder="Repeat the password"
-        value={repeatPassword}
-        onChange={(e) => setRepeatPassword(e.target.value)}
-        className="w-full bg-[#2b2b2b] rounded-[10px] px-4 py-3 border border-[#3a3a3a]"
-      />
-      <button
-        type="button"
-        onClick={() => setShowRepeat(!showRepeat)}
-        className="absolute right-3 top-3 text-gray-300 cursor-pointer"
-      >
-        {showRepeat ? <EyeOff size={18} /> : <Eye size={18} />}
-      </button>
-    </div>
+          {/* Repeat password */}
+          <div className="relative">
+            <input
+              type={showRepeat ? "text" : "password"}
+              placeholder="Repeat the password"
+              value={repeatPassword}
+              onChange={(e) => setRepeatPassword(e.target.value)}
+              className="w-full bg-[#2b2b2b] rounded-[10px] px-4 py-3 border border-[#3a3a3a]"
+            />
+            <button
+              type="button"
+              onClick={() => setShowRepeat(!showRepeat)}
+              className="absolute right-3 top-3 text-gray-300 cursor-pointer"
+            >
+              {showRepeat ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
 
-    <button
-      onClick={handleChangePassword}
-      className="px-6 py-3 mt-2 rounded-[10px] bg-gray-600 cursor-pointer"
-    >
-      Update
-    </button>
-  </div>
-</div>
+          <button
+            onClick={handleChangePassword}
+            className="px-6 py-3 mt-2 rounded-[10px] bg-gray-600 cursor-pointer"
+          >
+            Update
+          </button>
+        </div>
+      </div>
 
 
 
