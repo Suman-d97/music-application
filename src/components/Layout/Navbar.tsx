@@ -73,7 +73,7 @@ export default function HeaderBanner() {
               Hello, {userName}!
             </h1>
             <p className="text-white/90 text-[18px] mt-1">
-              Welcome back to Myfile
+              Welcome back to Music Hub 🎶
             </p>
           </div>
 
@@ -92,6 +92,7 @@ export default function HeaderBanner() {
                   width={300}
                   height={200}
                   alt="banner"
+                  className="cursor-pointer"
                 />
               </div>
             </div>
@@ -124,7 +125,7 @@ export default function HeaderBanner() {
               style={{
                 backgroundColor: theme === "dark" ? "transparent" : "transparent"
               }}
-              className="flex items-center gap-3 hover:opacity-80 p-2 rounded-xl transition-all duration-300"
+              className="flex items-center gap-3 hover:opacity-80 p-2 rounded-xl transition-all duration-300 cursor-pointer"
             >
               <div
                 style={{

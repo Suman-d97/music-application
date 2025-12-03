@@ -1,36 +1,60 @@
+
+
+
 // "use client";
 
-// import { useEffect, useState } from "react";
-// import { supabase } from "@/utils/supabaseClient";
+// import { useThemeStore } from "@/store/themeStore";
+// import Image from "next/image";
 
 // export default function TeamPage() {
-//   const [team, setTeam] = useState([]);
+//   const { theme } = useThemeStore();
 
-//   useEffect(() => {
-//     const loadTeam = async () => {
-//       const { data, error } = await supabase.from("team").select("*");
-//       if (!error && data) setTeam(data);
-//     };
-
-//     loadTeam();
-//   }, []);
+//   // Static team members data
+//   const teamMembers = [
+//     {
+//       id: 1,
+//       name: "John Doe",
+//       role: "Founder & CEO",
+//       image: "/team/Group 392.png"
+//     },
+//     {
+//       id: 2,
+//       name: "Jane Smith",
+//       role: "Creative Director",
+//       image: "/team/Group 393.png"
+//     },
+//     {
+//       id: 3,
+//       name: "Mike Johnson",
+//       role: "Lead Developer",
+//       image: "/team/Group 394.png"
+//     },
+//     {
+//       id: 4,
+//       name: "Sarah Williams",
+//       role: "Marketing Manager",
+//       image: "/team/Rectangle 302.png"
+//     }
+//   ];
 
 //   return (
-//     <div className="space-y-8">
-//       {/* Team Grid */}
-//       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-//         {team.map((member: any) => (
-//           <div
-//             key={member.id}
-//             className="bg-[#1a1a1a] border border-[#333] p-6 rounded-xl shadow-lg flex flex-col items-center"
-//           >
-//             <img
-//               src={member.image_url || "/profile.png"}
-//               className="w-24 h-24 rounded-full object-cover border border-[#444]"
-//             />
+//     <div
+//       style={{ color: theme === "dark" ? "#fff" : "#1f2937" }}
+//       className="px-6 py-10"
+//     >
+//       {/* HEADING */}
+//       <h1 className="text-4xl font-bold mb-12 text-center">Team</h1>
 
-//             <h2 className="mt-4 text-xl font-semibold text-white">{member.name}</h2>
-//             <p className="text-gray-400 text-sm">{member.role}</p>
+//       {/* TEAM PHOTOS GRID */}
+//       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
+//         {teamMembers.map((member) => (
+//           <div key={member.id} className="relative w-full h-64">
+//             <Image
+//               src={member.image}
+//               alt={member.name}
+//               fill
+//               className="object-contain"
+//             />
 //           </div>
 //         ))}
 //       </div>
@@ -44,70 +68,75 @@
 
 
 
+
+
 "use client";
 
-import { useEffect, useState } from "react";
-import { supabase } from "@/utils/supabaseClient";
 import { useThemeStore } from "@/store/themeStore";
+import Image from "next/image";
 
 export default function TeamPage() {
   const { theme } = useThemeStore();
-  const [team, setTeam] = useState<any[]>([]);
 
-  useEffect(() => {
-    const load = async () => {
-      const { data, error } = await supabase
-        .from("team")
-        .select("*")
-        .order("id", { ascending: true });
-
-      if (!error && data) setTeam(data);
-    };
-
-    load();
-  }, []);
+  const teamMembers = [
+    {
+      id: 1,
+      name: "Eminem",
+      role: "Artist",
+      image: "/team/Group 392.png",
+    },
+    {
+      id: 2,
+      name: "Eminem",
+      role: "Staff",
+      image: "/team/Group 393.png",
+    },
+    {
+      id: 3,
+      name: "Eminem",
+      role: "Team",
+      image: "/team/Group 394.png",
+    },
+    {
+      id: 4,
+      name: "Eminem",
+      role: "Producer",
+      image: "/team/Rectangle 302.png",
+    },
+  ];
 
   return (
     <div
-      style={{ color: theme === "dark" ? "#fff" : "#1f2937" }}
       className="px-6 py-10"
+      style={{ color: theme === "dark" ? "#fff" : "#1f2937" }}
     >
+      {/* PAGE TITLE */}
+      <h2 className="text-3xl font-bold mb-10">Our team</h2>
 
-      {/* TITLE */}
-      <h1 className="text-2xl font-semibold mb-8">Our team</h1>
-
-      {/* TEAM GRID — EXACT FIGMA WIDTH & STYLE */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-8">
-
-        {team.map((member) => (
+      {/* TEAM CARDS */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 max-w-6xl">
+        {teamMembers.map((member) => (
           <div
             key={member.id}
-            className="flex flex-col items-center text-center"
+            className="bg-[#1E1E1E] rounded-2xl p-3 flex flex-col items-center shadow-lg"
           >
-            {/* IMAGE BLOCK (FIGMA STYLE) */}
-            <div
-              style={{ backgroundColor: theme === "dark" ? "#222" : "#e5e7eb" }}
-              className="w-36 h-40 rounded-xl overflow-hidden shadow-md"
-            >
-              <img
-                src={member.avatar_url || "/default-avatar.png"}
-                className="w-full h-full object-cover"
+            {/* Image Container */}
+            <div className="w-full h-64 relative rounded-xl overflow-hidden">
+              <Image
+                src={member.image}
+                alt={member.name}
+                fill
+                className="object-cover"
               />
             </div>
 
-            {/* NAME */}
-            <h2 className="mt-3 text-lg font-semibold">{member.name}</h2>
-
-            {/* ROLE */}
-            <p
-              style={{ color: theme === "dark" ? "#9ca3af" : "#6b7280" }}
-              className="text-sm"
-            >
-              {member.role}
-            </p>
+            {/* TEXT */}
+            <div className="mt-4 text-center">
+              <p className="text-lg font-semibold">{member.role}</p>
+              <p className="text-sm opacity-70">{member.name}</p>
+            </div>
           </div>
         ))}
-
       </div>
     </div>
   );

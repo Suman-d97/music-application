@@ -113,6 +113,44 @@ export default function SubmissionsPage() {
     }
   };
 
+  // ⭐ Art Handler Functions
+  const handleDeleteArt = async (art: any) => {
+    if (!confirm("Are you sure you want to delete this artwork?")) return;
+
+    const { error } = await supabase.from("art").delete().eq("id", art.id);
+    if (error) {
+      alert("Error deleting artwork: " + error.message);
+    } else {
+      setArts(arts.filter((a) => a.id !== art.id));
+      alert("Artwork deleted successfully!");
+    }
+  };
+
+  const handleEditArt = (art: any) => {
+    window.location.href = `/submit-art?id=${art.id}`;
+  };
+
+  const handleDownloadArt = async (art: any) => {
+    const url = art.image_url;
+    if (!url) return alert("No image URL found");
+
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = `${art.title || 'artwork'}.jpg`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (e) {
+      console.error("Download failed", e);
+      window.open(url, "_blank");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[var(--bg)] text-[var(--text)] px-6 py-10 pb-32">
 
@@ -187,6 +225,9 @@ export default function SubmissionsPage() {
                 <ArtCard
                   item={item}
                   onOpen={() => openLightbox(i)}
+                  onEdit={() => handleEditArt(item)}
+                  onDownload={() => handleDownloadArt(item)}
+                  onDelete={() => handleDeleteArt(item)}
                 />
               )}
             </motion.div>
