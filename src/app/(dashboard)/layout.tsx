@@ -22,12 +22,12 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
 
       <div className="flex flex-col flex-1">
         <Navbar />
-        <main className="flex-1 p-8">{children}</main>
+        <main className="flex-1 p-8 pb-28">{children}</main>
         <Footer />
       </div>
 
       {/* Music Player - Fixed at bottom */}
-      {/* <MusicPlayer /> */}
+      <MusicPlayer />
     </div>
   );
 }
