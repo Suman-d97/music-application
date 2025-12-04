@@ -91,6 +91,7 @@ export default function SignUpForm() {
         email: v.email,
         password: v.password,
         options: {
+          emailRedirectTo: `${window.location.origin}/v1/callback`,
           data: {
             full_name: v.name,
             avatar_url: avatarUrl,

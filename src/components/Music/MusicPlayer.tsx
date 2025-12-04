@@ -213,7 +213,7 @@ export default function MusicPlayer() {
       </div>
 
       {/* Volume Controls - Right Side */}
-      <div className="flex items-center gap-2 w-auto min-w-[140px]">
+      <div className="hidden md:flex items-center gap-2 w-auto min-w-[140px]">
         <button onClick={toggleMute} className="text-[var(--text-secondary)] hover:text-[var(--text)] transition">
           {isMuted || volume === 0 ? <VolumeX size={18} /> : <Volume2 size={18} />}
         </button>
