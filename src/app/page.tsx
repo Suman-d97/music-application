@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/utils/supabaseClient";
 import { useRouter } from "next/navigation";
-import { Music, Palette, Users, TrendingUp, ArrowRight, Play, Sun, Moon } from "lucide-react";
-import { motion } from "framer-motion";
+import { Music, Palette, Users, TrendingUp, ArrowRight, Play, Sun, Moon, Menu, X } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useThemeStore } from "@/store/themeStore";
 
@@ -12,6 +12,7 @@ export default function LandingPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const { theme, setTheme } = useThemeStore();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
     // Check if user is already logged in
@@ -35,15 +36,17 @@ export default function LandingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--bg)] text-[var(--text)]">
+    <div className="min-h-screen bg-[var(--bg)] text-[var(--text)] overflow-x-hidden">
       {/* Header */}
-      <header className="border-b border-[var(--border)] bg-[var(--card)]">
+      <header className="border-b border-[var(--border)] bg-[var(--card)] sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Music className="text-purple-500" size={32} />
             <span className="text-2xl font-bold">MusicHub</span>
           </div>
-          <div className="flex items-center gap-4">
+
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center gap-4">
             <button
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
               className="w-10 h-10 rounded-lg border border-[var(--border)] bg-[var(--card)] flex items-center justify-center hover:opacity-80 transition-all duration-300 group"
@@ -68,33 +71,82 @@ export default function LandingPage() {
               Get Started
             </Link>
           </div>
+
+          {/* Mobile Menu Button */}
+          <div className="md:hidden flex items-center gap-4">
+            <button
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              className="w-10 h-10 rounded-lg border border-[var(--border)] bg-[var(--card)] flex items-center justify-center hover:opacity-80 transition-all duration-300 group"
+            >
+              {theme === "dark" ? (
+                <Sun size={20} className="text-yellow-400" />
+              ) : (
+                <Moon size={20} className="text-blue-500" />
+              )}
+            </button>
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="p-2 text-[var(--text)]"
+            >
+              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
         </div>
+
+        {/* Mobile Menu Overlay */}
+        <AnimatePresence>
+          {isMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="md:hidden bg-[var(--card)] border-t border-[var(--border)] overflow-hidden"
+            >
+              <div className="flex flex-col p-6 gap-4">
+                <Link
+                  href="/signin"
+                  className="w-full py-3 text-center border border-[var(--border)] rounded-xl hover:bg-[var(--hover)] transition font-semibold"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Sign In
+                </Link>
+                <Link
+                  href="/signup"
+                  className="w-full py-3 text-center bg-purple-500 text-white rounded-xl hover:bg-purple-600 transition font-semibold"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Get Started
+                </Link>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </header>
 
       {/* Hero Section */}
-      <section className="max-w-7xl mx-auto px-6 py-20">
+      <section className="max-w-7xl mx-auto px-6 py-12 md:py-20">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center"
         >
-          <h1 className="text-6xl font-extrabold mb-6 bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">
+          <h1 className="text-4xl md:text-6xl font-extrabold mb-6 bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent leading-tight">
             Share Your Music & Art
           </h1>
-          <p className="text-xl text-[var(--text-secondary)] mb-8 max-w-2xl mx-auto">
+          <p className="text-lg md:text-xl text-[var(--text-secondary)] mb-8 max-w-2xl mx-auto px-4">
             The ultimate platform for artists and musicians to showcase their work,
             connect with fans, and grow their creative community.
           </p>
-          <div className="flex items-center justify-center gap-4">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 px-4">
             <Link
               href="/signup"
-              className="px-8 py-4 bg-purple-500 text-white rounded-xl hover:bg-purple-600 transition flex items-center gap-2 text-lg font-semibold"
+              className="w-full sm:w-auto px-8 py-4 bg-purple-500 text-white rounded-xl hover:bg-purple-600 transition flex items-center justify-center gap-2 text-lg font-semibold"
             >
               Start Creating <ArrowRight size={20} />
             </Link>
             <Link
               href="/signin"
-              className="px-8 py-4 border border-[var(--border)] rounded-xl hover:bg-[var(--hover)] transition text-lg font-semibold"
+              className="w-full sm:w-auto px-8 py-4 border border-[var(--border)] rounded-xl hover:bg-[var(--hover)] transition text-lg font-semibold text-center"
             >
               Sign In
             </Link>
@@ -103,8 +155,8 @@ export default function LandingPage() {
       </section>
 
       {/* Features Section */}
-      <section className="max-w-7xl mx-auto px-6 py-20">
-        <h2 className="text-4xl font-bold text-center mb-12">Why Choose MusicHub?</h2>
+      <section className="max-w-7xl mx-auto px-6 py-12 md:py-20">
+        <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">Why Choose MusicHub?</h2>
         <div className="grid md:grid-cols-3 gap-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -157,14 +209,14 @@ export default function LandingPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="max-w-7xl mx-auto px-6 py-20">
+      <section className="max-w-7xl mx-auto px-6 py-12 md:py-20">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="bg-gradient-to-r from-purple-500 to-pink-500 rounded-3xl p-12 text-center text-white"
+          className="bg-gradient-to-r from-purple-500 to-pink-500 rounded-3xl p-8 md:p-12 text-center text-white"
         >
-          <h2 className="text-4xl font-bold mb-4">Ready to Get Started?</h2>
-          <p className="text-xl mb-8 opacity-90">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready to Get Started?</h2>
+          <p className="text-lg md:text-xl mb-8 opacity-90">
             Join thousands of artists already sharing their creativity on MusicHub
           </p>
           <Link

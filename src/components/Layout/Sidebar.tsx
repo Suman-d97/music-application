@@ -46,7 +46,7 @@ export default function Sidebar() {
       {/* Mobile Header */}
       <div
         style={{ backgroundColor: theme === "dark" ? "#141414" : "#f3f4f6" }}
-        className="md:hidden w-full h-16 flex items-center justify-between px-4 sticky top-0 z-50 border-b border-gray-800"
+        className="lg:hidden w-full h-16 flex items-center justify-between px-4 sticky top-0 z-50 border-b border-gray-800"
       >
         <div className="flex items-center gap-2">
           <div
@@ -75,7 +75,7 @@ export default function Sidebar() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             style={{ backgroundColor: theme === "dark" ? "#141414" : "#f3f4f6" }}
-            className="md:hidden fixed inset-0 top-16 z-[60] overflow-y-auto p-4"
+            className="lg:hidden fixed inset-0 top-16 z-[60] overflow-y-auto p-4"
           >
             <div className="flex flex-col gap-2">
               {menu.map((item) => {
@@ -115,7 +115,7 @@ export default function Sidebar() {
       {/* Desktop Sidebar */}
       <aside
         style={{ backgroundColor: theme === "dark" ? "#141414" : "#f3f4f6" }}
-        className="hidden md:flex relative w-20 min-h-screen flex-col items-center py-6 sticky top-0 h-screen"
+        className="hidden lg:flex relative w-20 min-h-screen flex-col items-center py-6 sticky top-0 h-screen"
       >
 
         {/* Small curved background panel */}
