@@ -59,9 +59,9 @@ export default function HeaderBanner() {
           className="
             relative 
             w-full md:w-[80%] 
-            h-[100px] sm:h-[120px] md:h-[140px]
+            min-h-[100px] h-auto
             rounded-2xl md:rounded-[32px] 
-            flex items-center px-4 sm:px-6 md:pl-12
+            flex items-center px-4 py-4 sm:px-6 md:pl-12
             overflow-hidden
             shadow-xl
             transition-all duration-300
