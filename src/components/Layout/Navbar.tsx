@@ -69,8 +69,8 @@ export default function HeaderBanner() {
         >
           {/* LEFT TEXT */}
           <div className="z-10">
-            <h1 className="text-2xl sm:text-3xl md:text-[42px] font-extrabold text-white leading-tight">
-              Hello, {userName}!
+            <h1 className="text-xl sm:text-3xl md:text-[42px] font-extrabold text-white leading-tight">
+              Hello, <span className="whitespace-nowrap">{userName}!</span>
             </h1>
             <p className="text-white/90 text-sm sm:text-base md:text-[18px] mt-0.5 md:mt-1">
               Welcome back to Music Hub 🎶

@@ -56,7 +56,7 @@ export default function Sidebar() {
             <img src={music.src} alt="logo" className="w-5 h-5" />
           </div>
           <span className={`font-bold ${theme === "dark" ? "text-white" : "text-black"}`}>
-            Music App
+            Music Hub
           </span>
         </div>
         <button
