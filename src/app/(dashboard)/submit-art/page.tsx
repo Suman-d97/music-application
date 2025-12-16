@@ -12,6 +12,13 @@ export default function SubmitArtPage() {
   const [artistName, setArtistName] = useState("");
   const [artType, setArtType] = useState("");
   const [creditUrl, setCreditUrl] = useState("");
+  
+  // Socials
+  const [instagram, setInstagram] = useState("");
+  const [twitter, setTwitter] = useState("");
+  const [facebook, setFacebook] = useState("");
+  const [website, setWebsite] = useState("");
+
   const [file, setFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -81,6 +88,10 @@ export default function SubmitArtPage() {
       credit_url: creditUrl || null,
       image_url: urlData.publicUrl,
       user_id: userId,
+      instagram: instagram || null,
+      twitter: twitter || null,
+      facebook: facebook || null,
+      website: website || null,
     });
 
     setLoading(false);
@@ -88,6 +99,10 @@ export default function SubmitArtPage() {
     setArtistName("");
     setArtType("");
     setCreditUrl("");
+    setInstagram("");
+    setTwitter("");
+    setFacebook("");
+    setWebsite("");
     setFile(null);
     setImagePreview(null);
   };
@@ -171,12 +186,13 @@ export default function SubmitArtPage() {
           placeholder="Artist Name"
           value={artistName}
           onChange={(e) => setArtistName(e.target.value)}
+          required
           style={{
             backgroundColor: theme === "dark" ? "#222" : "#f3f4f6",
             borderColor: theme === "dark" ? "#333" : "#d1d5db",
             color: theme === "dark" ? "#fff" : "#1f2937"
           }}
-          className="w-full mb-4 p-4 border rounded-xl outline-none"
+          className="w-full mb-4 p-4 border rounded-xl outline-none focus:border-[#ff4b5c] transition-colors"
         />
 
         {/* Art Type Dropdown */}
@@ -200,7 +216,7 @@ export default function SubmitArtPage() {
                 backgroundColor: theme === "dark" ? "#222" : "#ffffff",
                 borderColor: theme === "dark" ? "#333" : "#d1d5db"
               }}
-              className="absolute top-full left-0 w-full border rounded-xl mt-2 z-10"
+              className="absolute top-full left-0 w-full border rounded-xl mt-2 z-50 shadow-xl"
             >
               {artTypes.map((type) => (
                 <div
@@ -229,17 +245,37 @@ export default function SubmitArtPage() {
             borderColor: theme === "dark" ? "#333" : "#d1d5db",
             color: theme === "dark" ? "#fff" : "#1f2937"
           }}
-          className="w-full mb-8 p-4 border rounded-xl outline-none"
+          className="w-full mb-8 p-4 border rounded-xl outline-none focus:border-[#ff4b5c] transition-colors"
         />
 
         {/* Social inputs — Optional */}
         <p className="text-gray-400 mb-3">Artist social <span className="text-sm opacity-60">(optional)</span></p>
 
         <div className="grid grid-cols-2 gap-4 mb-6">
-          <input className="p-4 bg-[#222] border border-[#333] rounded-xl outline-none" placeholder="Instagram" />
-          <input className="p-4 bg-[#222] border border-[#333] rounded-xl outline-none" placeholder="Twitter" />
-          <input className="p-4 bg-[#222] border border-[#333] rounded-xl outline-none" placeholder="Facebook" />
-          <input className="p-4 bg-[#222] border border-[#333] rounded-xl outline-none" placeholder="Website" />
+          <input 
+            value={instagram}
+            onChange={(e) => setInstagram(e.target.value)}
+            className="p-4 bg-[#222] border border-[#333] rounded-xl outline-none focus:border-[#ff4b5c] transition-colors" 
+            placeholder="Instagram" 
+          />
+          <input 
+            value={twitter}
+            onChange={(e) => setTwitter(e.target.value)}
+            className="p-4 bg-[#222] border border-[#333] rounded-xl outline-none focus:border-[#ff4b5c] transition-colors" 
+            placeholder="Twitter" 
+          />
+          <input 
+            value={facebook}
+            onChange={(e) => setFacebook(e.target.value)}
+            className="p-4 bg-[#222] border border-[#333] rounded-xl outline-none focus:border-[#ff4b5c] transition-colors" 
+            placeholder="Facebook" 
+          />
+          <input 
+            value={website}
+            onChange={(e) => setWebsite(e.target.value)}
+            className="p-4 bg-[#222] border border-[#333] rounded-xl outline-none focus:border-[#ff4b5c] transition-colors" 
+            placeholder="Website" 
+          />
         </div>
 
         {/* T&C */}

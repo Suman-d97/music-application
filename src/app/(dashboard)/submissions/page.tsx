@@ -54,8 +54,8 @@ export default function SubmissionsPage() {
     if (artsData) {
       const formattedSlides = artsData.map((art) => ({
         src: art.image_url,
-        title: art.title || "Untitled Artwork",
-        description: art.artist ? `by ${art.artist}` : undefined,
+        title: art.title || art.art_type || "Untitled Artwork",
+        description: art.artist || art.artist_name ? `by ${art.artist || art.artist_name}` : undefined,
         downloadUrl: art.image_url, // For download plugin
       }));
       setSlides(formattedSlides);

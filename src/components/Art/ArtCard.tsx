@@ -18,6 +18,9 @@ export default function ArtCard({
     artist?: string;
     image_url?: string;
     credit_url?: string;
+    // Database fields
+    artist_name?: string;
+    art_type?: string;
   };
   onOpen?: (url?: string) => void;
   onEdit?: (item: any) => void;
@@ -32,13 +35,13 @@ export default function ArtCard({
         className="h-40 w-full rounded-lg overflow-hidden cursor-pointer"
         onClick={() => onOpen?.(item.image_url)}
       >
-        <img className="object-cover w-full h-full" src={item.image_url || "/placeholder.png"} alt={item.title} />
+        <img className="object-cover w-full h-full" src={item.image_url || "/placeholder.png"} alt={item.title || item.art_type} />
       </div>
 
       <div className="mt-3 flex items-start justify-between gap-2">
         <div>
-          <div className="text-[var(--text)] font-medium">{item.title || "Artwork"}</div>
-          <div className="text-[var(--text-secondary)] text-sm">{item.artist || "Unknown"}</div>
+          <div className="text-[var(--text)] font-medium">{item.title || item.art_type || "Artwork"}</div>
+          <div className="text-[var(--text-secondary)] text-sm">{item.artist || item.artist_name || "Unknown"}</div>
         </div>
 
         <div className="relative">
