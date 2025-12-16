@@ -4,7 +4,7 @@
 import Footer from "@/components/Layout/Footer";
 import Navbar from "@/components/Layout/Navbar";
 import Sidebar from "@/components/Layout/Sidebar";
-import MusicPlayer from "@/components/Music/MusicPlayer";
+// import MusicPlayer from "@/components/Music/MusicPlayer";
 import { useThemeStore } from "@/store/themeStore";
 import { useEffect } from "react";
 
@@ -27,7 +27,9 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
       </div>
 
       {/* Music Player - Fixed at bottom */}
-      <MusicPlayer />
+      {/* Music Player - Fixed at bottom 
+          Removed: Handled globally in RootLayout
+      */}
     </div>
   );
 }

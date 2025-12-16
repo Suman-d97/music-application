@@ -3,6 +3,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { useMusic } from "@/store/useMusic";
+import { useUser } from "@supabase/auth-helpers-react";
 import { AlertCircle, Play, Pause, SkipBack, SkipForward, Volume2, VolumeX } from "lucide-react";
 
 export default function MusicPlayer() {
@@ -139,10 +140,21 @@ export default function MusicPlayer() {
     }
   };
 
-  if (!currentSong) return null;
+  const user = useUser();
+
+  useEffect(() => {
+    console.log("MusicPlayer Render Check:", { 
+      hasUser: !!user, 
+      hasSong: !!currentSong, 
+      isPlaying,
+      user
+    });
+  }, [user, currentSong, isPlaying]);
+
+  if (!user || !currentSong) return null;
 
   return (
-    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-[var(--card)] border border-[var(--border)] px-5 py-3 z-50 flex items-center justify-center gap-4 rounded-2xl shadow-2xl backdrop-blur-md w-auto max-w-[95vw]">
+    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-[var(--card)] border border-[var(--border)] px-5 py-3 z-[100] flex items-center justify-center gap-4 rounded-2xl shadow-2xl backdrop-blur-md w-auto max-w-[95vw]">
       {error && (
         <div className="absolute bottom-full left-0 right-0 bg-red-500/90 text-white text-xs py-1 px-4 text-center flex items-center justify-center gap-2 backdrop-blur-sm rounded-t-xl mb-1">
           <AlertCircle size={12} />
