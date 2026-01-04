@@ -30,15 +30,15 @@ export default function CreateAlbumPage() {
         try {
             // 1. Upload Cover
             const fileExt = coverFile.name.split(".").pop();
-            const fileName = `covers/${Date.now()}.${fileExt}`;
+            const fileName = `art_${Date.now()}.${fileExt}`;
             const { error: uploadError } = await supabase.storage
-                .from("covers") // Ensure this bucket exists
+                .from("art-images") // Ensure this bucket exists
                 .upload(fileName, coverFile);
 
             if (uploadError) throw uploadError;
 
             const { data: urlData } = supabase.storage
-                .from("covers")
+                .from("art-images")
                 .getPublicUrl(fileName);
 
             // 2. Create Album Record

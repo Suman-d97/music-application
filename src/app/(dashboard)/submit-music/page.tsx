@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { supabase } from "@/utils/supabaseClient";
 import { UploadCloud, Trash2, ChevronDown, Loader } from "lucide-react";
 import { useThemeStore } from "@/store/themeStore";
@@ -17,7 +17,23 @@ export default function SubmitMusicPage() {
 function SubmitMusicContent() {
   const { theme } = useThemeStore();
   const searchParams = useSearchParams();
+  const router = useRouter();
   const songId = searchParams.get("id");
+
+  useEffect(() => {
+    checkAccess();
+    if (songId) {
+      fetchSongDetails();
+    }
+  }, [songId]);
+
+  const checkAccess = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user?.email !== "www.playgame18@gmail.com") {
+      alert("Access Denied: Only admin can submit music.");
+      router.push("/home");
+    }
+  };
 
   const [artistName, setArtistName] = useState("");
   const [songTitle, setSongTitle] = useState("");

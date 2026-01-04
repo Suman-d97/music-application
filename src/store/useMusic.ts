@@ -20,6 +20,7 @@ interface MusicState {
   next: () => void;
   prev: () => void;
   setPlaying: (playing: boolean) => void;
+  reset: () => void;
 }
 
 export const useMusic = create<MusicState>((set, get) => ({
@@ -52,5 +53,12 @@ export const useMusic = create<MusicState>((set, get) => ({
         return { currentIndex: state.currentIndex - 1, isPlaying: true };
       }
       return {};
+    }),
+
+  reset: () =>
+    set({
+      playlist: [],
+      currentIndex: 0,
+      isPlaying: false,
     }),
 }));

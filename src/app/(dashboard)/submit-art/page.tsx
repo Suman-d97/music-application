@@ -7,8 +7,24 @@ import { supabase } from "@/utils/supabaseClient";
 import { Loader, UploadCloud, ChevronDown, X, Image as ImageIcon } from "lucide-react";
 import { useThemeStore } from "@/store/themeStore";
 
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+
 export default function SubmitArtPage() {
+  const router = useRouter();
   const { theme } = useThemeStore();
+  
+  useEffect(() => {
+    const checkAccess = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user?.email !== "www.playgame18@gmail.com") {
+        alert("Access Denied: Only admin can submit art.");
+        router.push("/home");
+      }
+    };
+    checkAccess();
+  }, []);
+
   const [artistName, setArtistName] = useState("");
   const [artType, setArtType] = useState("");
   const [creditUrl, setCreditUrl] = useState("");

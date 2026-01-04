@@ -6,7 +6,10 @@ import { supabase } from "@/utils/supabaseClient";
 import { Camera, Eye, EyeOff, Trash2 } from "lucide-react";
 import LottieLoader from "@/components/Common/LottieLoader";
 
+import { useMusic } from "@/store/useMusic";
+
 export default function ProfilePage() {
+  const { reset } = useMusic();
   const [loading, setLoading] = useState(true);
   const [showOld, setShowOld] = useState(false);
   const [showNew, setShowNew] = useState(false);
@@ -89,7 +92,7 @@ export default function ProfilePage() {
         .from("avatars")
         .upload(filePath, file, { upsert: true });
 
-      if (uploadError) throw uploadError;
+    if (uploadError) throw uploadError;
 
       const { data: urlData } = supabase.storage
         .from("avatars")
@@ -344,6 +347,7 @@ export default function ProfilePage() {
         <div className="flex flex-col sm:flex-row justify-between gap-3 sm:gap-0 mt-6">
           <button
             onClick={async () => {
+              reset(); // Reset music player state
               await supabase.auth.signOut();
               window.location.href = "/signin";
             }}

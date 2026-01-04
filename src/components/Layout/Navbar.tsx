@@ -8,6 +8,7 @@ import { useThemeStore } from "@/store/themeStore";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useMusic } from "@/store/useMusic";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function HeaderBanner() {
@@ -16,6 +17,7 @@ export default function HeaderBanner() {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const { theme, setTheme } = useThemeStore();
+  const { reset } = useMusic();
 
   useEffect(() => {
     const loadUser = async () => {
@@ -35,6 +37,7 @@ export default function HeaderBanner() {
   }, []);
 
   const handleLogout = async () => {
+    reset(); // Reset music player state
     await supabase.auth.signOut();
     router.push("/");
   };

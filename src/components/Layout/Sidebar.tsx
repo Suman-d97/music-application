@@ -79,16 +79,35 @@ export default function Sidebar() {
           >
             <div className="flex flex-col gap-2">
               {menu.map((item) => {
+                const isAdmin = user?.email === "www.playgame18@gmail.com";
+                const isRestrictedLink = ["/submit-music", "/submit-art"].includes(item.href);
+
+                // If it's a restricted link and user is NOT admin, hide it
+                if (isRestrictedLink && !isAdmin) return null;
+
                 const active = pathname.startsWith(item.href);
                 const Icon = item.icon;
-                const isRestricted = ["/submit-music", "/submit-art", "/join"].includes(item.href);
-
+                
+                // Keep join restricted logic if needed, or remove it as user said "join us page" is allowed.
+                // User said: "user only see... join us pade team page". So Join Us is ALLOWED.
+                // Removing "/join" from isRestricted in original code if it was restricting access to filtered view, but here we are filtering visibility.
+                // Original code had: const isRestricted = ["/submit-music", "/submit-art", "/join"].includes(item.href);
+                // I will keep the click handler logic for /join if it requires login, but not hide it.
+                // Actually, the user specifically listed "join us" as allowed.
+                
+                // Original click handler logic checked login for join.
+                const authRequiredLinks = ["/join"]; // Keep auth check for join if desired, or remove if public. Assuming public based on request.
+                // Actually, let's stick to hiding the upload links.
+                
                 const handleClick = (e: React.MouseEvent) => {
-                  if (isRestricted && !user) {
-                    e.preventDefault();
-                    router.push("/signup");
-                  }
-                  setIsOpen(false);
+                   // If /join requires login in original, keep it? 
+                   // The request says "user only see ... join us". 
+                   // I will assume Join Us is visible to all.
+                   
+                   // Original code redirected to signup if restricted.
+                   // Here we are hiding the strict upload links entirely.
+                   
+                   setIsOpen(false);
                 };
 
                 return (
@@ -137,24 +156,19 @@ export default function Sidebar() {
         {/* Menu */}
         <div className="relative z-20 flex flex-col gap-6 w-full items-center">
           {menu.map((item) => {
+            const isAdmin = user?.email === "www.playgame18@gmail.com";
+            const isRestrictedLink = ["/submit-music", "/submit-art"].includes(item.href);
+
+            if (isRestrictedLink && !isAdmin) return null;
+
             const active = pathname.startsWith(item.href);
             const Icon = item.icon;
-
-            const isRestricted = ["/submit-music", "/submit-art", "/join"].includes(item.href);
-
-            const handleClick = (e: React.MouseEvent) => {
-              if (isRestricted && !user) {
-                e.preventDefault();
-                router.push("/signup");
-              }
-            };
 
             return (
               <Link
                 href={item.href}
                 key={item.href}
                 className="w-full flex justify-center"
-                onClick={handleClick}
               >
                 <div className="relative w-full flex flex-col items-center">
 

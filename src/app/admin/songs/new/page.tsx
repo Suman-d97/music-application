@@ -35,23 +35,23 @@ export default function AddSongPage() {
         try {
             // 1. Upload Song
             const songExt = songFile.name.split(".").pop();
-            const songName = `songs/${Date.now()}.${songExt}`;
+            const songName = `music_${Date.now()}.${songExt}`; // Matches user naming convention roughly, though distinct enough
             const { error: songError } = await supabase.storage
-                .from("songs")
+                .from("music-files")
                 .upload(songName, songFile);
             if (songError) throw songError;
 
-            const { data: songUrlData } = supabase.storage.from("songs").getPublicUrl(songName);
+            const { data: songUrlData } = supabase.storage.from("music-files").getPublicUrl(songName);
 
             // 2. Upload Cover
             const coverExt = coverFile.name.split(".").pop();
-            const coverName = `covers/${Date.now()}.${coverExt}`;
+            const coverName = `art_${Date.now()}.${coverExt}`;
             const { error: coverError } = await supabase.storage
-                .from("covers")
+                .from("art-images")
                 .upload(coverName, coverFile);
             if (coverError) throw coverError;
 
-            const { data: coverUrlData } = supabase.storage.from("covers").getPublicUrl(coverName);
+            const { data: coverUrlData } = supabase.storage.from("art-images").getPublicUrl(coverName);
 
             // 3. Create Song Record
             const { error: dbError } = await supabase.from("songs").insert([
