@@ -49,7 +49,7 @@ export default function AlbumDetailsPage() {
       {songs.length === 0 ? (
         <p className="text-gray-400">No songs in this album.</p>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+        <div className="flex flex-col space-y-2">
           {songs.map((song) => (
             <SongCard
               key={song.id}

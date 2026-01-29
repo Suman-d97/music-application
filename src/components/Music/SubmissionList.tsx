@@ -12,7 +12,7 @@ export default function SubmissionList({
 }) {
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+    <div className="flex flex-col space-y-2">
       {items.map((song) => (
         <SongCard
           key={song.id}
