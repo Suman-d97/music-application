@@ -15,8 +15,15 @@ export default function LandingPage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
-    // Check if user is already logged in
-    const checkUser = async () => {
+    const handleAuth = async () => {
+      // 1. Check if this is a password recovery flow
+      // Supabase appends #access_token=...&type=recovery if redirecting to root
+      if (typeof window !== "undefined" && window.location.hash.includes("type=recovery")) {
+        router.push("/reset-password");
+        return;
+      }
+
+      // 2. Check if user is already logged in
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         router.push("/home");
@@ -24,7 +31,8 @@ export default function LandingPage() {
         setLoading(false);
       }
     };
-    checkUser();
+    
+    handleAuth();
   }, [router]);
 
   if (loading) {
