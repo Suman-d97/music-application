@@ -11,6 +11,7 @@ import { setUser } from "@/store/userSlice";
 import { Eye, EyeOff } from "lucide-react";
 import { motion } from "framer-motion";
 import AuthLoader from "./AuthLoader";
+import SocialLogin from "./SocialLogin";
 
 const SignInSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -129,6 +130,11 @@ export default function SignInForm() {
               {isSubmitting ? "Signing in..." : "Sign in"}
             </motion.button>
           </div>
+
+          {/* Social Login */}
+          <SocialLogin />
+          
+          <div className="h-4"></div>
 
           {/* Sign Up Link */}
           <p className="text-sm text-center text-gray-400">

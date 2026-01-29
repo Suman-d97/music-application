@@ -12,6 +12,7 @@ import { setUser } from "@/store/userSlice";
 import { motion } from "framer-motion";
 import VerifyEmailDialog from "./VerifyEmailDialog";
 import AuthLoader from "./AuthLoader";
+import SocialLogin from "./SocialLogin";
 
 const SignUpSchema = z
   .object({
@@ -277,6 +278,11 @@ export default function SignUpForm() {
           >
             {isSubmitting ? "Creating Account..." : "Sign up"}
           </motion.button>
+
+          {/* Social Login */}
+          <SocialLogin />
+          
+          <div className="h-4"></div>
 
           {/* Login Link */}
           <p className="text-sm text-gray-400 text-center mt-6">
