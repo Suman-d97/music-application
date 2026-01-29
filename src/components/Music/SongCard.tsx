@@ -26,7 +26,7 @@ export default function SongCard({ song, onPlay, onDownload, onEdit, onDelete }:
 
   return (
     <div 
-      className="group flex items-center justify-between p-2 rounded-lg hover:bg-white/5 transition-colors border border-transparent hover:border-white/5"
+      className="group flex items-center justify-between p-2 rounded-lg hover:bg-[var(--hover)] transition-colors border border-transparent hover:border-[var(--border)]"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -43,7 +43,7 @@ export default function SongCard({ song, onPlay, onDownload, onEdit, onDelete }:
               sizes="48px"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gray-800 text-gray-500">
+            <div className="w-full h-full flex items-center justify-center bg-[var(--bg-secondary)] text-[var(--text-secondary)]">
               <Music size={20} />
             </div>
           )}
@@ -56,10 +56,10 @@ export default function SongCard({ song, onPlay, onDownload, onEdit, onDelete }:
 
         {/* Info */}
         <div className="flex flex-col truncate cursor-pointer">
-          <span className="text-white font-medium text-sm truncate group-hover:text-[var(--purple-primary)] transition-colors">
+          <span className="text-[var(--text)] font-medium text-sm truncate group-hover:text-[var(--purple-primary)] transition-colors">
             {song.title || "Untitled"}
           </span>
-          <span className="text-gray-400 text-xs truncate">
+          <span className="text-[var(--text-secondary)] text-xs truncate">
             {song.artist || "Unknown Artist"}
           </span>
         </div>
@@ -74,7 +74,7 @@ export default function SongCard({ song, onPlay, onDownload, onEdit, onDelete }:
               e.stopPropagation();
               setMenuOpen((s) => !s);
             }}
-            className={`p-2 rounded-full hover:bg-white/10 text-gray-400 hover:text-white transition-opacity ${menuOpen || isHovered ? 'opacity-100' : 'opacity-0'}`}
+            className={`p-2 rounded-full hover:bg-[var(--hover)] text-[var(--text-secondary)] hover:text-[var(--text)] transition-opacity ${menuOpen || isHovered ? 'opacity-100' : 'opacity-0'}`}
             aria-label="menu"
           >
             <MoreVertical size={18} />
@@ -83,7 +83,7 @@ export default function SongCard({ song, onPlay, onDownload, onEdit, onDelete }:
           {menuOpen && (
             <div
               onMouseLeave={() => setMenuOpen(false)}
-              className="absolute right-0 top-full mt-1 w-40 bg-[var(--dropdown-bg)] border border-[var(--border)] rounded-lg shadow-xl z-20 overflow-hidden"
+              className="absolute right-0 top-full mt-1 w-40 bg-[var(--card)] border border-[var(--border)] rounded-lg shadow-xl z-20 overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
               {onEdit && (
@@ -92,7 +92,7 @@ export default function SongCard({ song, onPlay, onDownload, onEdit, onDelete }:
                     onEdit(song);
                     setMenuOpen(false);
                   }}
-                  className="w-full text-left px-4 py-2.5 text-sm hover:bg-[var(--hover)] hover:text-white text-gray-300 transition-colors"
+                  className="w-full text-left px-4 py-2.5 text-sm hover:bg-[var(--hover)] text-[var(--text)] transition-colors"
                 >
                   Edit
                 </button>
@@ -104,7 +104,7 @@ export default function SongCard({ song, onPlay, onDownload, onEdit, onDelete }:
                     onDownload(song);
                     setMenuOpen(false);
                   }}
-                  className="w-full text-left px-4 py-2.5 text-sm hover:bg-[var(--hover)] hover:text-white text-gray-300 transition-colors"
+                  className="w-full text-left px-4 py-2.5 text-sm hover:bg-[var(--hover)] text-[var(--text)] transition-colors"
                 >
                   Download
                 </button>
@@ -116,7 +116,7 @@ export default function SongCard({ song, onPlay, onDownload, onEdit, onDelete }:
                     onDelete(song);
                     setMenuOpen(false);
                   }}
-                  className="w-full text-left px-4 py-2.5 text-sm hover:bg-red-500/10 text-red-400 hover:text-red-300 transition-colors"
+                  className="w-full text-left px-4 py-2.5 text-sm hover:bg-red-500/10 text-red-500 hover:text-red-600 transition-colors"
                 >
                   Delete
                 </button>
