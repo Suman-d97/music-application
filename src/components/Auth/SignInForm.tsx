@@ -111,6 +111,11 @@ export default function SignInForm() {
                 {errors.password.message as string}
               </p>
             )}
+            <div className="flex justify-end mt-2">
+              <a href="/forgot-password" className="text-sm text-gray-400 hover:text-white transition-colors">
+                Forgot password?
+              </a>
+            </div>
           </div>
 
           {/* Sign In Button */}
