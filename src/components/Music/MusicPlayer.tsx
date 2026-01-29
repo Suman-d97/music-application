@@ -4,7 +4,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useMusic } from "@/store/useMusic";
 import { useUser } from "@supabase/auth-helpers-react";
-import { AlertCircle, Play, Pause, SkipBack, SkipForward, Volume2, VolumeX } from "lucide-react";
+import { 
+  AlertCircle, Play, Pause, SkipBack, SkipForward, 
+  Volume2, VolumeX, Loader2, Music4 
+} from "lucide-react";
 
 export default function MusicPlayer() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -15,6 +18,7 @@ export default function MusicPlayer() {
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(1);
   const [isMuted, setIsMuted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const formatTime = (time: number) => {
     if (isNaN(time)) return "0:00";
@@ -29,11 +33,13 @@ export default function MusicPlayer() {
     const audio = audioRef.current;
     if (!audio || !currentSong) return;
 
-    setError(null); // Reset error on song change
-    console.log("MusicPlayer: Loading song", currentSong.title, "URL:", currentSong.url);
+    setError(null);
+    setIsLoading(true); // Start loading when song changes
+    console.log("MusicPlayer: Loading song", currentSong.title);
 
     if (!currentSong.url) {
       console.error("MusicPlayer: No URL for song", currentSong);
+      setIsLoading(false);
       return;
     }
 
@@ -41,13 +47,22 @@ export default function MusicPlayer() {
       try {
         audio.src = currentSong.url;
         audio.load();
+        // We wait for 'canplay' event to clear laoding state naturally, 
+        // but if we are already playing, we try to play immediately.
         if (isPlaying) {
-          await audio.play();
+          const playPromise = audio.play();
+          if (playPromise !== undefined) {
+             playPromise
+               .catch(error => {
+                 if (error.name !== 'AbortError') {
+                    console.error("MusicPlayer: Playback auto-start failed", error);
+                 }
+               });
+          }
         }
       } catch (error) {
-        if ((error as any).name !== 'AbortError') {
-          console.error("MusicPlayer: Playback failed", error);
-        }
+        console.error("MusicPlayer: Setup failed", error);
+        setIsLoading(false);
       }
     };
 
@@ -61,7 +76,10 @@ export default function MusicPlayer() {
     const toggleAudio = async () => {
       try {
         if (isPlaying) {
-          await audio.play();
+          const playPromise = audio.play();
+          if (playPromise !== undefined) {
+            await playPromise;
+          }
         } else {
           audio.pause();
         }
@@ -75,22 +93,28 @@ export default function MusicPlayer() {
     toggleAudio();
   }, [isPlaying]);
 
+  const handleCanPlay = () => {
+    setIsLoading(false);
+  };
+
+  const handleWaiting = () => {
+    setIsLoading(true);
+  };
+
   const handleAudioError = (e: any) => {
+    setIsLoading(false);
     const audio = e.target as HTMLAudioElement;
     console.error("MusicPlayer: Audio error", audio.error);
 
     let errorMessage = "Playback error";
     if (audio.error?.code === MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED) {
-      errorMessage = "Source not supported or invalid URL";
-      console.error("MusicPlayer: Source not supported or invalid URL:", audio.src);
+      errorMessage = "Invalid Source";
     } else if (audio.error?.code === MediaError.MEDIA_ERR_NETWORK) {
-      errorMessage = "Network error - check your connection";
+      errorMessage = "Network Error";
     } else if (audio.error?.code === MediaError.MEDIA_ERR_DECODE) {
-      errorMessage = "Decoding error - file may be corrupted";
+      errorMessage = "Corrupted File";
     }
 
-    setError(errorMessage);
-    setPlaying(false);
     setError(errorMessage);
     setPlaying(false);
   };
@@ -129,7 +153,6 @@ export default function MusicPlayer() {
       const newMutedState = !isMuted;
       setIsMuted(newMutedState);
       audioRef.current.muted = newMutedState;
-      // Optional: Reset volume slider if unmuted, or set to 0 if muted
       if (newMutedState) {
         setVolume(0);
         audioRef.current.volume = 0;
@@ -142,102 +165,189 @@ export default function MusicPlayer() {
 
   const user = useUser();
 
-  useEffect(() => {
-    console.log("MusicPlayer Render Check:", { 
-      hasUser: !!user, 
-      hasSong: !!currentSong, 
-      isPlaying,
-      user
-    });
-  }, [user, currentSong, isPlaying]);
-
   if (!user || !currentSong) return null;
 
   return (
-    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-[var(--card)] border border-[var(--border)] px-5 py-3 z-[100] flex items-center justify-center gap-4 rounded-2xl shadow-2xl backdrop-blur-md w-auto max-w-[95vw]">
-      {error && (
-        <div className="absolute bottom-full left-0 right-0 bg-red-500/90 text-white text-xs py-1 px-4 text-center flex items-center justify-center gap-2 backdrop-blur-sm rounded-t-xl mb-1">
-          <AlertCircle size={12} />
-          {error}
-        </div>
-      )}
-      <audio
-        ref={audioRef}
-        onEnded={next}
-        onPause={() => setPlaying(false)}
-        onPlay={() => setPlaying(true)}
-        onError={handleAudioError}
-        onTimeUpdate={handleTimeUpdate}
-        onLoadedMetadata={handleLoadedMetadata}
-      />
-
-      {/* Song Info */}
-      <div className="flex items-center gap-3 w-auto min-w-[140px] justify-end">
-        <div className="text-right hidden sm:block">
-          <h3 className="font-semibold text-[var(--text)] text-xs truncate max-w-[120px]">{currentSong.title}</h3>
-          <p className="text-[var(--text-secondary)] text-[10px] truncate max-w-[120px]">{currentSong.artist || "Unknown Artist"}</p>
-        </div>
-        {currentSong.cover_url && (
-          <img
-            src={currentSong.cover_url}
-            alt={currentSong.title}
-            className="w-10 h-10 rounded-lg object-cover shadow-md"
-          />
+    <div className="fixed bottom-4 left-0 right-0 px-4 z-[100] flex justify-center pointer-events-none">
+      <div 
+        className="
+          pointer-events-auto
+          w-full max-w-4xl 
+          bg-black/60 backdrop-blur-xl border border-white/10 
+          rounded-2xl shadow-2xl shadow-black/50
+          p-4 flex flex-col sm:flex-row items-center gap-4
+          transition-all duration-300 ease-in-out
+          hover:bg-black/70
+        "
+      >
+        {/* Error Alert */}
+        {error && (
+          <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-red-500/90 text-white text-xs py-1.5 px-4 rounded-full flex items-center gap-2 backdrop-blur-sm shadow-lg animate-in fade-in slide-in-from-bottom-2">
+            <AlertCircle size={14} />
+            {error}
+          </div>
         )}
-      </div>
 
-      {/* Controls */}
-      <div className="flex flex-col items-center gap-1 w-full max-w-md">
-        <div className="flex items-center gap-4">
-          <button onClick={prev} className="text-[var(--text-secondary)] hover:text-[var(--text)] transition">
-            <SkipBack size={20} />
-          </button>
-
-          <button
-            onClick={toggle}
-            className="text-[var(--text)] hover:scale-105 transition bg-gradient-to-r from-purple-600 to-pink-600 p-2 rounded-full shadow-lg"
-          >
-            {isPlaying ? (
-              <Pause size={20} className="text-white" />
-            ) : (
-              <Play size={20} fill="white" className="text-white" />
-            )}
-          </button>
-
-          <button onClick={next} className="text-[var(--text-secondary)] hover:text-[var(--text)] transition">
-            <SkipForward size={20} />
-          </button>
-        </div>
-
-        {/* Progress Bar */}
-        <div className="flex items-center gap-2 w-full">
-          <span className="text-[10px] text-[var(--text-secondary)] w-8 text-right">{formatTime(currentTime)}</span>
-          <input
-            type="range"
-            min={0}
-            max={duration || 0}
-            value={currentTime}
-            onChange={handleSeek}
-            className="flex-1 h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-2.5 [&::-webkit-slider-thumb]:h-2.5 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:shadow-md hover:[&::-webkit-slider-thumb]:scale-125 transition-all"
-          />
-          <span className="text-[10px] text-[var(--text-secondary)] w-8">{formatTime(duration)}</span>
-        </div>
-      </div>
-
-      {/* Volume Controls - Right Side */}
-      <div className="hidden lg:flex items-center gap-2 w-auto min-w-[140px]">
-        <button onClick={toggleMute} className="text-[var(--text-secondary)] hover:text-[var(--text)] transition">
-          {isMuted || volume === 0 ? <VolumeX size={18} /> : <Volume2 size={18} />}
-        </button>
-        <input
-          type="range"
-          min={0}
-          max={1}
-          step={0.01}
-          value={volume}
-          onChange={handleVolumeChange}
-          className="w-20 h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-2.5 [&::-webkit-slider-thumb]:h-2.5 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:shadow-md hover:[&::-webkit-slider-thumb]:scale-125 transition-all"
+        <audio
+          ref={audioRef}
+          onEnded={next}
+          onPause={() => setPlaying(false)}
+          onPlay={() => setPlaying(true)}
+          onCanPlay={handleCanPlay}
+          onWaiting={handleWaiting}
+          onPlaying={() => setIsLoading(false)}
+          onError={handleAudioError}
+          onTimeUpdate={handleTimeUpdate}
+          onLoadedMetadata={handleLoadedMetadata}
         />
+
+        {/* Song Info - Visible on Mobile now */}
+        <div className="flex items-center gap-3 w-full sm:w-1/4 min-w-[120px]">
+          <div className="relative group shrink-0">
+            {currentSong.cover_url ? (
+              <img
+                src={currentSong.cover_url}
+                alt={currentSong.title}
+                className={`w-12 h-12 rounded-lg object-cover shadow-lg ring-1 ring-white/10 ${isPlaying ? 'animate-pulse-slow' : ''}`}
+              />
+            ) : (
+              <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg">
+                <Music4 className="text-white/60" size={20} />
+              </div>
+            )}
+            {/* Playing Indicator Overlay */}
+            {isPlaying && !isLoading && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/20 rounded-lg">
+                <div className="flex gap-0.5 items-end h-3">
+                  <span className="w-1 bg-white/80 rounded-full animate-music-bar-1 h-3"></span>
+                  <span className="w-1 bg-white/80 rounded-full animate-music-bar-2 h-2"></span>
+                  <span className="w-1 bg-white/80 rounded-full animate-music-bar-3 h-3"></span>
+                </div>
+              </div>
+            )}
+          </div>
+          
+          <div className="overflow-hidden">
+            <h3 className="font-semibold text-white/95 text-sm truncate leading-tight">
+              {currentSong.title}
+            </h3>
+            <p className="text-white/60 text-xs truncate">
+              {currentSong.artist || "Unknown Artist"}
+            </p>
+          </div>
+        </div>
+
+        {/* Controls - Center */}
+        <div className="flex flex-col items-center w-full gap-2">
+          {/* Buttons */}
+          <div className="flex items-center gap-6">
+            <button 
+              onClick={prev} 
+              className="text-white/60 hover:text-white transition-colors hover:scale-110 active:scale-95"
+              disabled={isLoading}
+            >
+              <SkipBack size={22} />
+            </button>
+
+            <button
+              onClick={toggle}
+              disabled={isLoading}
+              className={`
+                relative
+                flex items-center justify-center
+                w-10 h-10 rounded-full 
+                bg-white text-black 
+                hover:scale-105 active:scale-95 
+                transition-all shadow-lg shadow-white/10
+                disabled:opacity-80 disabled:hover:scale-100
+              `}
+            >
+              {isLoading ? (
+                <Loader2 size={20} className="animate-spin" />
+              ) : isPlaying ? (
+                <Pause size={20} fill="currentColor" />
+              ) : (
+                <Play size={20} fill="currentColor" className="ml-0.5" />
+              )}
+            </button>
+
+            <button 
+              onClick={next} 
+              className="text-white/60 hover:text-white transition-colors hover:scale-110 active:scale-95"
+              disabled={isLoading}
+            >
+              <SkipForward size={22} />
+            </button>
+          </div>
+
+          {/* Progress Bar */}
+          <div className="flex items-center gap-3 w-full max-w-md group/progress">
+            <span className="text-[10px] text-white/40 tabular-nums w-8 text-right font-medium">
+              {formatTime(currentTime)}
+            </span>
+            <div className="relative flex-1 h-3 flex items-center">
+              <input
+                type="range"
+                min={0}
+                max={duration || 0}
+                value={currentTime}
+                onChange={handleSeek}
+                className="
+                  absolute z-20 w-full h-3 opacity-0 cursor-pointer
+                "
+              />
+              <div className="absolute left-0 right-0 h-1 bg-white/10 rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-white/90 rounded-full transition-all duration-100 ease-linear"
+                  style={{ width: `${(currentTime / (duration || 1)) * 100}%` }}
+                />
+              </div>
+              {/* Thumb Indicator - only shows on hover group */}
+              <div 
+                className="
+                  absolute h-2.5 w-2.5 bg-white rounded-full 
+                  shadow-[0_0_10px_rgba(255,255,255,0.5)]
+                  opacity-0 group-hover/progress:opacity-100 
+                  transition-opacity duration-200 pointer-events-none
+                "
+                style={{ 
+                  left: `${(currentTime / (duration || 1)) * 100}%`,
+                  transform: 'translateX(-50%)' 
+                }}
+              />
+            </div>
+            <span className="text-[10px] text-white/40 tabular-nums w-8 font-medium">
+              {formatTime(duration)}
+            </span>
+          </div>
+        </div>
+
+        {/* Volume - Desktop Only */}
+        <div className="hidden sm:flex items-center gap-3 w-1/4 justify-end min-w-[120px]">
+          <button 
+            onClick={toggleMute} 
+            className="text-white/60 hover:text-white transition-colors"
+          >
+            {isMuted || volume === 0 ? <VolumeX size={18} /> : <Volume2 size={18} />}
+          </button>
+          <div className="relative w-20 h-3 flex items-center group/volume">
+            <input
+              type="range"
+              min={0}
+              max={1}
+              step={0.01}
+              value={volume}
+              onChange={handleVolumeChange}
+              className="absolute z-20 w-full h-3 opacity-0 cursor-pointer"
+            />
+            <div className="absolute left-0 right-0 h-1 bg-white/10 rounded-full overflow-hidden">
+               <div 
+                  className="h-full bg-white/70 rounded-full transition-all duration-150"
+                  style={{ width: `${volume * 100}%` }}
+               />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
