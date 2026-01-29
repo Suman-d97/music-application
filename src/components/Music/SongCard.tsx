@@ -50,7 +50,7 @@ export default function SongCard({ song, onPlay, onDownload, onEdit, onDelete }:
           
           {/* Play Icon on Hover */}
           <div className={`absolute inset-0 flex items-center justify-center transition-opacity duration-200 ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
-             <Play size={20} className="text-white fill-white" />
+             <Play size={20} className="text-[var(--purple-primary)] fill-[var(--purple-primary)]" />
           </div>
         </div>
 
