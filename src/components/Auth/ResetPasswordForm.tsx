@@ -95,21 +95,13 @@ export default function ResetPasswordForm() {
 
         {/* BUTTONS */}
         <div className="flex gap-3 mb-5">
-          {/* GOOGLE UI BUTTON */}
-          <button
-            type="button"
-            className="w-20 h-12 border border-[#555] rounded-xl flex items-center justify-center text-xl text-white"
-          >
-            G
-          </button>
-
           {/* UPDATE BUTTON */}
           <button
             type="submit"
             disabled={isSubmitting}
             className="flex-1 h-12 bg-[#2a2a2a] hover:bg-[#333] text-white rounded-xl transition font-semibold"
           >
-            {isSubmitting ? "Updating..." : "Sign up"}
+            {isSubmitting ? "Updating..." : "Update Password"}
           </button>
         </div>
 
