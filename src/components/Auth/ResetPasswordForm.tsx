@@ -1,12 +1,13 @@
 
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { supabase } from "@/utils/supabaseClient";
 import { useRouter } from "next/navigation";
+import { Eye, EyeOff } from "lucide-react";
 
 const Schema = z
   .object({
@@ -22,6 +23,8 @@ type FormValues = z.infer<typeof Schema>;
 
 export default function ResetPasswordForm() {
   const router = useRouter();
+  const [showPass, setShowPass] = useState(false);
+  const [showConfirmPass, setShowConfirmPass] = useState(false);
 
   const {
     register,
@@ -64,13 +67,20 @@ export default function ResetPasswordForm() {
         </p>
 
         {/* NEW PASSWORD */}
-        <div className="mb-4">
+        <div className="mb-4 relative">
           <input
             {...register("password")}
-            type="password"
+            type={showPass ? "text" : "password"}
             placeholder="New password"
             className="w-full px-4 py-3 rounded-xl bg-[#262626] border border-[#3a3a3a] text-white outline-none focus:border-[#4f4f4f]"
           />
+          <button
+            type="button"
+            onClick={() => setShowPass(!showPass)}
+            className="absolute right-3 top-3 text-gray-400 hover:text-white transition-colors"
+          >
+            {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
           {errors.password && (
             <p className="text-sm text-red-400 mt-1">
               {errors.password.message}
@@ -79,13 +89,20 @@ export default function ResetPasswordForm() {
         </div>
 
         {/* CONFIRM PASSWORD */}
-        <div className="mb-6">
+        <div className="mb-6 relative">
           <input
             {...register("confirm")}
-            type="password"
+            type={showConfirmPass ? "text" : "password"}
             placeholder="Repeat the password"
             className="w-full px-4 py-3 rounded-xl bg-[#262626] border border-[#3a3a3a] text-white outline-none focus:border-[#4f4f4f]"
           />
+          <button
+            type="button"
+            onClick={() => setShowConfirmPass(!showConfirmPass)}
+            className="absolute right-3 top-3 text-gray-400 hover:text-white transition-colors"
+          >
+            {showConfirmPass ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
           {errors.confirm && (
             <p className="text-sm text-red-400 mt-1">
               {errors.confirm.message}
