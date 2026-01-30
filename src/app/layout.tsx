@@ -4,6 +4,7 @@ import "yet-another-react-lightbox/plugins/captions.css";
 import "yet-another-react-lightbox/plugins/thumbnails.css";
 import Providers from "./providers";
 import MusicPlayer from "@/components/Music/MusicPlayer";
+import AnimatedBackground from "@/components/Common/AnimatedBackground";
 
 export const metadata = {
   title: "MusicHub",
@@ -16,8 +17,9 @@ export const metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="bg-[#0f1113] text-white antialiased">
+      <body className="antialiased">
         <Providers>
+          <AnimatedBackground />
           {children}
           <MusicPlayer />
         </Providers>
